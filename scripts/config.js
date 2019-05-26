@@ -226,7 +226,8 @@ function genConfig (name) {
       file: opts.dest,
       format: opts.format,
       banner: opts.banner,
-      name: opts.moduleName || 'Vue'
+      name: opts.moduleName || 'Vue',
+      sourcemap:true//开启source-map
     },
     onwarn: (msg, warn) => {
       if (!/Circular/.test(msg)) {
@@ -264,6 +265,7 @@ function genConfig (name) {
 }
 
 if (process.env.TARGET) {
+  //npm run dev 走这里
   module.exports = genConfig(process.env.TARGET)
 } else {
   exports.getBuild = genConfig
