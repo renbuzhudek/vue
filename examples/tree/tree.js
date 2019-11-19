@@ -34,10 +34,11 @@ Vue.component('item', {
   props: {
     model: Object
   },
-  data: {
+  data() {
+    return {
       open: false
     
-  },
+  }},
   computed: {
     isFolder: function () {
       return this.model.children &&

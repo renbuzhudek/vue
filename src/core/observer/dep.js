@@ -53,13 +53,14 @@ export default class Dep {
 // This is globally unique because only one watcher
 // can be evaluated at a time.
 Dep.target = null
+// target 栈
 const targetStack = []
-//设置 Dep.target
+//设置 Dep.target，并压入栈，方便恢复上一个target
 export function pushTarget (target: ?Watcher) {
   targetStack.push(target)
   Dep.target = target
 }
-
+// Dep.target 恢复到上一个 target
 export function popTarget () {
   targetStack.pop()
   Dep.target = targetStack[targetStack.length - 1]

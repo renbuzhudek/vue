@@ -97,12 +97,19 @@ export default class Watcher {
 
   /**
    * Evaluate the getter, and re-collect dependencies.
+   * TODO:这个是视图更新方法
    */
   get () {
-    pushTarget(this)
+    pushTarget(this)  //实例化watcher时 首先设置target
     let value
     const vm = this.vm
     try {
+      /**TODO:
+       * 实际调用 ：vm._update(vm._render(), hydrating)  lifecycle.js 197行
+       * 它会先执行 vm._render() 方法，因为这个方法会生成 渲染 VNode，
+       * 并且在这个过程中会对 vm 上的数据访问，这个时候就触发了数据对象的 getter,
+       * 从而watcher观察者被收集到 响应式属性持有的dep.subs里面
+       */
       value = this.getter.call(vm, vm)
     } catch (e) {
       if (this.user) {
@@ -113,6 +120,7 @@ export default class Watcher {
     } finally {
       // "touch" every property so they are all tracked as
       // dependencies for deep watching
+      //TODO: 深度监听选项为true时
       if (this.deep) {
         traverse(value)
       }
