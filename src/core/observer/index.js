@@ -21,8 +21,9 @@ const arrayKeys = Object.getOwnPropertyNames(arrayMethods)
 /**
  * In some cases we may want to disable observation inside a component's
  * update computation.
+ *    是否观察开关,默认  true
  */
-export let shouldObserve: boolean = true
+export let shouldObserve: boolean = true 
 
 export function toggleObserving (value: boolean) {
   shouldObserve = value
@@ -45,14 +46,20 @@ export class Observer {
     this.vmCount = 0
     def(value, '__ob__', this)
     if (Array.isArray(value)) {
+      /**如果 value 是数组,  
+       * 判断{}没有__ob__属性，手动设置并劫持变异方法
+       *   对变异方法做劫持 pop push shift unshift splice short reverse
+       * 跳过了 defineReactive 操作 （没有做数据劫持）
+       */
       if (hasProto) {
         protoAugment(value, arrayMethods)
       } else {
-        copyAugment(value, arrayMethods, arrayKeys)
+        copyAugment(value, arrayMethods, arrayKeys) 
       }
-      this.observeArray(value)
+      this.observeArray(value)//遍历数组成员，调用observe，
     } else {
-      this.walk(value)
+      //如果不是数组并且是对象（先调用的observe方法判断只能是数组或者对象，所以这里是对象），给对象所有的key设置为响应式属性
+      this.walk(value) 
     }
   }
 
@@ -122,7 +129,7 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
     !value._isVue
   ) {
     ob = new Observer(value)
-  }
+  }//判断是否是组件根data对象，vmCount计数器加1
   if (asRootData && ob) {
     ob.vmCount++
   }
@@ -159,9 +166,9 @@ export function defineReactive (
     configurable: true,
     get: function reactiveGetter () {
       const value = getter ? getter.call(obj) : val
-      if (Dep.target) {
-        dep.depend()
-        if (childOb) {
+      if (Dep.target) {  //依赖收集的时候，会生成watcher,然后Dep.target=watcher，然后触发get函数，最后dep.subs.push(watcher)完成依赖收集
+        dep.depend()//等价于 dep.subs.push(watcher)
+        if (childOb) { //递归收集观察者
           childOb.dep.depend()
           if (Array.isArray(value)) {
             dependArray(value)
@@ -196,7 +203,9 @@ export function defineReactive (
 /**
  * Set a property on an object. Adds the new property and
  * triggers change notification if the property doesn't
- * already exist.
+ * already exist.   
+ * Vue.set  vm.$set方法
+ * TODO:  这里也是__ob__对象的作用之处，增删响应式属性时，通知watcher更新视图，进而触发新一轮收集watcher观察者
  */
 export function set (target: Array<any> | Object, key: any, val: any): any {
   if (process.env.NODE_ENV !== 'production' &&
@@ -204,16 +213,19 @@ export function set (target: Array<any> | Object, key: any, val: any): any {
   ) {
     warn(`Cannot set reactive property on undefined, null, or primitive value: ${(target: any)}`)
   }
+  //如果是数组，用splice设置val ，退出函数
   if (Array.isArray(target) && isValidArrayIndex(key)) {
     target.length = Math.max(target.length, key)
     target.splice(key, 1, val)
     return val
   }
+  //如果key属性已存在target中并且不是Object原型中的属性，赋值后退出函数
   if (key in target && !(key in Object.prototype)) {
     target[key] = val
     return val
   }
   const ob = (target: any).__ob__
+  // 避免向vue实例或者根$data添加响应式属性
   if (target._isVue || (ob && ob.vmCount)) {
     process.env.NODE_ENV !== 'production' && warn(
       'Avoid adding reactive properties to a Vue instance or its root $data ' +
@@ -221,17 +233,21 @@ export function set (target: Array<any> | Object, key: any, val: any): any {
     )
     return val
   }
+  //没有ob说明target不是响应式属性，赋值后退出函数
   if (!ob) {
     target[key] = val
     return val
   }
+  //给 target.__ob__.value 对象（其实就是target对象）上设置响应式属性 key
   defineReactive(ob.value, key, val)
+  // 通知更新
   ob.dep.notify()
   return val
 }
 
 /**
  * Delete a property and trigger change if necessary.
+ *  Vue.delete vm.$delete 删除响应式属性 ,并通知更新
  */
 export function del (target: Array<any> | Object, key: any) {
   if (process.env.NODE_ENV !== 'production' &&

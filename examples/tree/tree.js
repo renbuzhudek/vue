@@ -34,10 +34,9 @@ Vue.component('item', {
   props: {
     model: Object
   },
-  data: function () {
-    return {
+  data: {
       open: false
-    }
+    
   },
   computed: {
     isFolder: function () {

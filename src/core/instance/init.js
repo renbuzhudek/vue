@@ -49,14 +49,18 @@ export function initMixin (Vue: Class<Component>) {
     }
     // expose real self
     vm._self = vm
+    /**
+     * TODO: 初始化实例的过程
+     * 
+     */
     initLifecycle(vm)
-    initEvents(vm)
-    initRender(vm)
-    callHook(vm, 'beforeCreate')
-    initInjections(vm) // resolve injections before data/props
-    initState(vm)
-    initProvide(vm) // resolve provide after data/props
-    callHook(vm, 'created')
+    initEvents(vm)  // 初始化事件监听
+    initRender(vm)  //初始化渲染函数相关的设置
+    callHook(vm, 'beforeCreate')//vm.$emit 生命周期钩子 beforeCreate
+    initInjections(vm) // resolve injections before data/props 状态之前初始化注入
+    initState(vm)//初始化状态 data/props ,先处理props，后处理data
+    initProvide(vm) // resolve provide after data/props 状态之后初始化提供商
+    callHook(vm, 'created') //vm.$emit 生命周期钩子 created
 
     /* istanbul ignore if */
     if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
