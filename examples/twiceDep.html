@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app"></div>
+        <script src="../dist/vue.js"></script>
+    <script>
+        let Child = {
+	name: 'child',
+  template: '<div><span>{{ localMsg }}</span><button @click="change">click</button></div>',
+  data: function() {
+  	return {
+    	localMsg: this.msg
+    }
+  },
+  props: {
+  	msg: String
+  },
+  methods: {
+  	change() {
+    	this.$emit('update:msg', 'world'+Math.random())
+    }
+  }
+}
+let par = {
+	name: 'par',
+  template: '<child :msg.sync="msg"></child>',
+  beforeUpdate() {
+  	alert('update twice')
+  },
+  data() {
+  	return {
+      msg: 'hello',
+      aaa:1
+    }
+  },
+  components: {
+  	Child
+  }
+}
+var twice=new Vue({
+	el: '#app',
+  template: '<par/>',
+  components: {
+  	par
+  }
+})
+        </script>
+</body>
+</html>

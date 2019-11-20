@@ -15,11 +15,12 @@ export function initExtend (Vue: GlobalAPI) {
 
   /**
    * Class inheritance
+   * 组件构造器：Vue全局组件注册内部也会调用Vue.extend方法继承Vue构造函数，并返回这个构造器
    */
   Vue.extend = function (extendOptions: Object): Function {
-    extendOptions = extendOptions || {}
-    const Super = this
-    const SuperId = Super.cid
+    extendOptions = extendOptions || {} //要继承的组件选项
+    const Super = this//超类，就是Vue
+    const SuperId = Super.cid//超类的组件cid
     const cachedCtors = extendOptions._Ctor || (extendOptions._Ctor = {})
     if (cachedCtors[SuperId]) {
       return cachedCtors[SuperId]
@@ -29,10 +30,11 @@ export function initExtend (Vue: GlobalAPI) {
     if (process.env.NODE_ENV !== 'production' && name) {
       validateComponentName(name)
     }
-
+    //组件实例的构造函数 Sub的父类是Vue
     const Sub = function VueComponent (options) {
       this._init(options)
     }
+    
     Sub.prototype = Object.create(Super.prototype)
     Sub.prototype.constructor = Sub
     Sub.cid = cid++
@@ -45,6 +47,9 @@ export function initExtend (Vue: GlobalAPI) {
     // For props and computed properties, we define the proxy getters on
     // the Vue instances at extension time, on the extended prototype. This
     // avoids Object.defineProperty calls for each instance created.
+    //对于props和computed属性，我们在
+    //在扩展原型上的扩展时Vue实例。这个
+    //避免为创建的每个实例调用Object.defineProperty。
     if (Sub.options.props) {
       initProps(Sub)
     }
@@ -53,6 +58,7 @@ export function initExtend (Vue: GlobalAPI) {
     }
 
     // allow further extension/mixin/plugin usage
+    //允许进一步扩展子类
     Sub.extend = Super.extend
     Sub.mixin = Super.mixin
     Sub.use = Super.use

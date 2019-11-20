@@ -53,7 +53,7 @@ export function initMixin (Vue: Class<Component>) {
      * TODO: 初始化实例的过程
      * 
      */
-    initLifecycle(vm)
+    initLifecycle(vm) //初始化生命周期相关属性
     initEvents(vm)  // 初始化事件监听
     initRender(vm)  //初始化渲染函数相关的设置
     callHook(vm, 'beforeCreate')//vm.$emit 生命周期钩子 beforeCreate

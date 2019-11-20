@@ -704,7 +704,7 @@ function pushTarget (_target) {
   Dep.target = _target;
 }
 
-function popTarget () {
+function popTarget () { 
   Dep.target = targetStack.pop();
 }
 

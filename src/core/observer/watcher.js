@@ -124,7 +124,7 @@ export default class Watcher {
       if (this.deep) {
         traverse(value)
       }
-      popTarget()
+      popTarget()//置空target
       this.cleanupDeps()
     }
     return value

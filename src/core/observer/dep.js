@@ -52,9 +52,11 @@ export default class Dep {
 // The current target watcher being evaluated.
 // This is globally unique because only one watcher
 // can be evaluated at a time.
+window.Dep=Dep
 Dep.target = null
 // target 栈
 const targetStack = []
+// window.targetStack=targetStack
 //设置 Dep.target，并压入栈，方便恢复上一个target
 export function pushTarget (target: ?Watcher) {
   targetStack.push(target)

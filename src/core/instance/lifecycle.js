@@ -137,7 +137,7 @@ export function lifecycleMixin (Vue: Class<Component>) {
     }
   }
 }
-
+//vm.$mount()实际上就是调用这个函数 ，见：src\platforms\web\runtime\index.js 37行
 export function mountComponent (
   vm: Component,
   el: ?Element,
@@ -164,6 +164,7 @@ export function mountComponent (
       }
     }
   }
+  // beforeMount钩子执行
   callHook(vm, 'beforeMount')
 
   let updateComponent
@@ -194,6 +195,11 @@ export function mountComponent (
   // we set this to vm._watcher inside the watcher's constructor
   // since the watcher's initial patch may call $forceUpdate (e.g. inside child
   // component's mounted hook), which relies on vm._watcher being already defined
+
+  /**
+   * 准备好 renderWatcher ,调用updateComponent
+   * 实际上就是调用vm._render()，会触发data数据的get函数，进行依赖收集
+   */
   new Watcher(vm, updateComponent, noop, {
     before () {
       if (vm._isMounted && !vm._isDestroyed) {
@@ -205,6 +211,7 @@ export function mountComponent (
 
   // manually mounted instance, call mounted on self
   // mounted is called for render-created child components in its inserted hook
+   // mounted 钩子执行
   if (vm.$vnode == null) {
     vm._isMounted = true
     callHook(vm, 'mounted')
@@ -298,7 +305,7 @@ function isInInactiveTree (vm) {
   }
   return false
 }
-
+//activated钩子
 export function activateChildComponent (vm: Component, direct?: boolean) {
   if (direct) {
     vm._directInactive = false
@@ -316,7 +323,7 @@ export function activateChildComponent (vm: Component, direct?: boolean) {
     callHook(vm, 'activated')
   }
 }
-
+//deactivated钩子
 export function deactivateChildComponent (vm: Component, direct?: boolean) {
   if (direct) {
     vm._directInactive = true
@@ -332,7 +339,7 @@ export function deactivateChildComponent (vm: Component, direct?: boolean) {
     callHook(vm, 'deactivated')
   }
 }
-
+// 生命周期钩子触发函数 这里禁止了dep依赖收集 ，解决的bug编号是7573,实测这里不禁止dep貌似也没问题。
 export function callHook (vm: Component, hook: string) {
   // #7573 disable dep collection when invoking lifecycle hooks
   pushTarget()

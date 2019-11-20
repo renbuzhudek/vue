@@ -108,11 +108,11 @@ function initProps (vm: Component, propsOptions: Object) {
   }
   toggleObserving(true)
 }
-
+// 初始化 data数据对象，做数据劫持
 function initData (vm: Component) {
   let data = vm.$options.data
   data = vm._data = typeof data === 'function'
-    ? getData(data, vm)
+    ? getData(data, vm)   //生成data数据对象，同时并不触发依赖收集
     : data || {}
   if (!isPlainObject(data)) {
     data = {}
@@ -147,20 +147,38 @@ function initData (vm: Component) {
       proxy(vm, `_data`, key)
     }
   }
-  // observe data
+  // observe data  数据劫持为响应式属性
   observe(data, true /* asRootData */)
 }
-
+//获取data数据对象, 调用数据获取程序时禁用dep收集
 export function getData (data: Function, vm: Component): any {
   // #7573 disable dep collection when invoking data getters
-  pushTarget()
+  /**例：data中依赖了props
+   * 这种情况，如果不禁止dep收集依赖， 那么首次修改msg就会导致父组件 updated 钩子触发2次
+   * 那么就说明有2个dep收集了父组件的renderWatcher,导致updated调用2次
+   * 换句话说父组件的data.msg 和子组件的props.msg初始化阶段都触发了get进行了依赖收集，并且都是收集的父组件的renderWatcher,那么set时就导致重复触发视图更新
+   * 触发时机：从生命周期调用顺序可以看出，watcher收集发生顺序是 parent -> children ,
+   * defineReactive 函数内get上断点可以看出，父组件的data.msg属性正常收集了一次 renderWatcher ,而子组件props.msg同样收集了一次父组件的 renderWatcher
+   * mountComponent函数内断点到子组件的 new  Watcher，打印出Dep.target依然存在，那么问题就在这，父组件没有正确清空target,
+   * 再次断点到 pushTarget 和popTarget,发现首次pushTarget调用了2次，一次存了watcher,一次存了undefined,然后才调用popTarget，导致最后
+   * parent 收集完watcher时，Dep.target指向了 parent 的renderWatcher,但是并未定位到那个地方会调用2次pushTarget
+   *   data: function() {
+  	return {
+    	localMsg: this.msg
+    }
+  },
+  props: {
+  	msg: String
+  },
+   */
+  // pushTarget()
   try {
     return data.call(vm, vm)
   } catch (e) {
     handleError(e, vm, `data()`)
     return {}
   } finally {
-    popTarget()
+    // popTarget()
   }
 }
 

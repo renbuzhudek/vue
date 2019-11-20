@@ -40,7 +40,7 @@ function pruneCacheEntry (
   keys: Array<string>,
   current?: VNode
 ) {
-  const cached = cache[key]
+  const cached = cache[key] //取出要销毁的组件
   if (cached && (!current || cached.tag !== current.tag)) {
     cached.componentInstance.$destroy()
   }
@@ -52,8 +52,8 @@ const patternTypes: Array<Function> = [String, RegExp, Array]
 
 export default {
   name: 'keep-alive',
-  abstract: true,
-
+  abstract: true,//抽象组件
+//接收的props
   props: {
     include: patternTypes,
     exclude: patternTypes,
@@ -61,10 +61,10 @@ export default {
   },
 
   created () {
-    this.cache = Object.create(null)
+    this.cache = Object.create(null) //对象，用于缓存组件的vnode,key是组件名
     this.keys = []
   },
-
+//keep-alive组件销毁时，清除缓存
   destroyed () {
     for (const key in this.cache) {
       pruneCacheEntry(this.cache, key, this.keys)
