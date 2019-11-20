@@ -27,6 +27,7 @@ export function initMixin (Vue: Class<Component>) {
     }
 
     // a flag to avoid this being observed
+    // 标识为组件实例
     vm._isVue = true
     // merge options
     if (options && options._isComponent) {
@@ -34,7 +35,7 @@ export function initMixin (Vue: Class<Component>) {
       // since dynamic options merging is pretty slow, and none of the
       // internal component options needs special treatment.
       initInternalComponent(vm, options)
-    } else {
+    } else {//合并组件选项并存到$options属性上
       vm.$options = mergeOptions(
         resolveConstructorOptions(vm.constructor),
         options || {},
@@ -93,13 +94,13 @@ export function initInternalComponent (vm: Component, options: InternalComponent
     opts.staticRenderFns = options.staticRenderFns
   }
 }
-
+// 获取构造函数上的组件选项
 export function resolveConstructorOptions (Ctor: Class<Component>) {
   let options = Ctor.options
-  if (Ctor.super) {
-    const superOptions = resolveConstructorOptions(Ctor.super)
-    const cachedSuperOptions = Ctor.superOptions
-    if (superOptions !== cachedSuperOptions) {
+  if (Ctor.super) {//如果有超类，
+    const superOptions = resolveConstructorOptions(Ctor.super)//获取超类的组件选项
+    const cachedSuperOptions = Ctor.superOptions//拿到构造函数上原先存的超类组件选项
+    if (superOptions !== cachedSuperOptions) {//如果2个不是同一个组件选项，说明超类的组件选项改变了。需要拿到新的
       // super option changed,
       // need to resolve new options.
       Ctor.superOptions = superOptions

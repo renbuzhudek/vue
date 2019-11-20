@@ -65,7 +65,7 @@ export function renderMixin (Vue: Class<Component>) {
   Vue.prototype.$nextTick = function (fn: Function) {
     return nextTick(fn, this)
   }
-
+//render函数，创建虚拟dom
   Vue.prototype._render = function (): VNode {
     const vm: Component = this
     const { render, _parentVnode } = vm.$options
@@ -87,7 +87,11 @@ export function renderMixin (Vue: Class<Component>) {
       // There's no need to maintain a stack because all render fns are called
       // separately from one another. Nested component's render fns are called
       // when parent component is patched.
+      //不需要维护堆栈，因为所有render fn都被调用
+      //彼此分开。嵌套组件的render fn被调用
+      //修补父组件时。
       currentRenderingInstance = vm
+      //调用组件选项render函数,生成vnode
       vnode = render.call(vm._renderProxy, vm.$createElement)
     } catch (e) {
       handleError(e, vm, `render`)

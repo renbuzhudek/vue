@@ -28,7 +28,7 @@ export function setActiveInstance(vm: Component) {
     activeInstance = prevActiveInstance
   }
 }
-
+// 初始化生命周期相关属性
 export function initLifecycle (vm: Component) {
   const options = vm.$options
 
@@ -144,6 +144,9 @@ export function mountComponent (
   hydrating?: boolean
 ): Component {
   vm.$el = el
+  //判断是否有render函数，如果没有，赋值上去,实际上到这里的时候，已经处理了render函数
+  //带编译器的运行时会先把template生成render函数,才会运行到这里
+  // src\platforms\web\entry-runtime-with-compiler.js 64行
   if (!vm.$options.render) {
     vm.$options.render = createEmptyVNode
     if (process.env.NODE_ENV !== 'production') {

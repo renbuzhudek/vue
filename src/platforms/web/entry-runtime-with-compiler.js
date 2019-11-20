@@ -1,5 +1,5 @@
 /* @flow */
-
+//带编译的运行时 ,重新包装了$mount方法，会先编译template模板生成render函数，然后调用运行时的mount方法
 import config from 'core/config'
 import { warn, cached } from 'core/util/index'
 import { mark, measure } from 'core/util/perf'
@@ -60,8 +60,8 @@ Vue.prototype.$mount = function (
       /* istanbul ignore if */
       if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
         mark('compile')
-      }
-
+      } 
+// 把template转换成渲染函数
       const { render, staticRenderFns } = compileToFunctions(template, {
         outputSourceRange: process.env.NODE_ENV !== 'production',
         shouldDecodeNewlines,
