@@ -51,7 +51,7 @@ const componentVNodeHooks = {
         vnode,
         activeInstance
       )
-      //挂载子组件,在这里会触发子组件的生命周期,创建流程
+      //调用$mount方法触发子组件的生命周期,创建流程，子组件的mounted事件会在父组件完成patch的最后一行触发
       child.$mount(hydrating ? vnode.elm : undefined, hydrating)
     }
   },
@@ -67,7 +67,7 @@ const componentVNodeHooks = {
       options.children // new children
     )
   },
-
+// 这个insert hook作用只是调用组件的mounted钩子，标志组件挂载完成
   insert (vnode: MountedComponentVNode) {
     const { context, componentInstance } = vnode
     if (!componentInstance._isMounted) {
@@ -101,7 +101,7 @@ const componentVNodeHooks = {
 }
 
 const hooksToMerge = Object.keys(componentVNodeHooks)
-
+// 创建组件占位vnode,此时只是在占位vnode上设置好组件实例化需要的方法和属性，还并未创建组件实例
 export function createComponent (
   Ctor: Class<Component> | Function | Object | void,
   data: ?VNodeData,

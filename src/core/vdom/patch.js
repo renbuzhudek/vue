@@ -209,7 +209,7 @@ export function createPatchFunction (backend) {
       insert(parentElm, vnode.elm, refElm)
     }
   }
-// 创建组件实例：vm._vnode.elm挂载到parentElm上
+// 创建组件实例：并把vm._vnode.elm挂载到parentElm父元素上
   function createComponent (vnode, insertedVnodeQueue, parentElm, refElm) {
     let i = vnode.data
     if (isDef(i)) {
@@ -230,7 +230,7 @@ export function createPatchFunction (backend) {
       //在这种情况下，我们可以返回元素并完成。
       //TODO:
       if (isDef(vnode.componentInstance)) {
-        initComponent(vnode, insertedVnodeQueue)
+        initComponent(vnode, insertedVnodeQueue)//init组件函数，这里会把占位vnode.elm=vnode.componentInstance.$el
         insert(parentElm, vnode.elm, refElm)//子组件的DOM元素插入到父元素上,完成挂载
         if (isTrue(isReactivated)) {
           reactivateComponent(vnode, insertedVnodeQueue, parentElm, refElm)
@@ -252,8 +252,10 @@ export function createPatchFunction (backend) {
     } else {
       // empty component root.
       // skip all element-related modules except for ref (#3455)
+      // 注册ref到上下文环境中
       registerRef(vnode)
       // make sure to invoke the insert hook
+      // vnode放到插入队列中
       insertedVnodeQueue.push(vnode)
     }
   }
@@ -411,7 +413,7 @@ export function createPatchFunction (backend) {
       removeNode(vnode.elm)
     }
   }
-// 更新子节点
+// diff新旧children vnode,进行更新操作
   function updateChildren (parentElm, oldCh, newCh, insertedVnodeQueue, removeOnly) {
     let oldStartIdx = 0
     let newStartIdx = 0
@@ -563,7 +565,7 @@ export function createPatchFunction (backend) {
       if (isDef(i = data.hook) && isDef(i = i.update)) i(oldVnode, vnode)
     }
     if (isUndef(vnode.text)) {
-      if (isDef(oldCh) && isDef(ch)) {
+      if (isDef(oldCh) && isDef(ch)) {//对当前vnode的子节点进行更新，递归的进行 patchVnode操作
         if (oldCh !== ch) updateChildren(elm, oldCh, ch, insertedVnodeQueue, removeOnly)
       } else if (isDef(ch)) {
         if (process.env.NODE_ENV !== 'production') {
@@ -583,7 +585,7 @@ export function createPatchFunction (backend) {
       if (isDef(i = data.hook) && isDef(i = i.postpatch)) i(oldVnode, vnode)
     }
   }
-
+// 调用组件的mounted钩子，标志挂载完成
   function invokeInsertHook (vnode, queue, initial) {
     // delay insert hooks for component root nodes, invoke them after the
     // element is really inserted
@@ -761,13 +763,13 @@ export function createPatchFunction (backend) {
           // 创建一个空的vnode代替oldVnode并把elm属性挂载DOM
           oldVnode = emptyNodeAt(oldVnode)
         }
-          /*--------------------- 新旧vnode不值得比较走这里-------------------------*/
+          /*--------------------- 第一个参数是真实DOM或者新旧vnode不值得比较走这里-------------------------*/
         // replacing existing element
         // 替换已存在的元素 
         const oldElm = oldVnode.elm
         const parentElm = nodeOps.parentNode(oldElm)  //这句是找到旧DOM元素的父元素
 
-        // create new node 创建新的DOM元素
+        // create new node 创建新的DOM元素，创建新元素的过程，会把元素插入到父元素中
         createElm(
           vnode,
           insertedVnodeQueue,
@@ -816,7 +818,7 @@ export function createPatchFunction (backend) {
         }
       }
     }
-
+// 调用子组件的mounted钩子，标志挂载完成
     invokeInsertHook(vnode, insertedVnodeQueue, isInitialPatch)
     return vnode.elm
   }
