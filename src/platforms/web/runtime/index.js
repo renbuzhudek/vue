@@ -31,6 +31,7 @@ extend(Vue.options.directives, platformDirectives)
 extend(Vue.options.components, platformComponents)
 
 // install platform patch function
+// 安装平台使用的打补丁函数，如果是浏览器端赋值到patch函数，否则是一个空函数，相当于啥也不做
 Vue.prototype.__patch__ = inBrowser ? patch : noop
 
 // public mount method

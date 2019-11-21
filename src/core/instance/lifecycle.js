@@ -54,25 +54,29 @@ export function initLifecycle (vm: Component) {
   vm._isDestroyed = false
   vm._isBeingDestroyed = false
 }
-
+// 组件生命周期方法
 export function lifecycleMixin (Vue: Class<Component>) {
+  // 视图更新： 传入新的vnode, 打补丁，渲染成真实DOM
   Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {
     const vm: Component = this
-    const prevEl = vm.$el
-    const prevVnode = vm._vnode
+    const prevEl = vm.$el//之前的DOM
+    const prevVnode = vm._vnode//之前的vnode
     const restoreActiveInstance = setActiveInstance(vm)
-    vm._vnode = vnode
+    vm._vnode = vnode//_vnode属性指向新的vnode
     // Vue.prototype.__patch__ is injected in entry points
     // based on the rendering backend used.
-    if (!prevVnode) {
-      // initial render
+    // __patch__在入口点注入，基于后台渲染使用
+    if (!prevVnode) {//如果不存在之前的vnode,说明是组件初次渲染
+      // initial render,调用patch方法，解析vnode，渲染真实DOM
+      //初次渲染的子组件参数依次为undefined,vnode,false,false
+      // 如果组件$mount挂载时传入了DOM或者id， 这里第一个参数是DOM节点
       vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */)
     } else {
-      // updates
+      // updates 否则是更新DOM ,传入oldVnode 和newVnode
       vm.$el = vm.__patch__(prevVnode, vnode)
     }
     restoreActiveInstance()
-    // update __vue__ reference
+    // update __vue__ reference 删除旧的DOM节点对组件实例的引用
     if (prevEl) {
       prevEl.__vue__ = null
     }
@@ -80,6 +84,7 @@ export function lifecycleMixin (Vue: Class<Component>) {
       vm.$el.__vue__ = vm
     }
     // if parent is an HOC, update its $el as well
+    // 更新高阶组件的 $el属性 
     if (vm.$vnode && vm.$parent && vm.$vnode === vm.$parent._vnode) {
       vm.$parent.$el = vm.$el
     }
@@ -143,7 +148,7 @@ export function mountComponent (
   el: ?Element,
   hydrating?: boolean
 ): Component {
-  vm.$el = el
+  vm.$el = el   //vm.$mount方法query(el)拿到 DOM 赋值给 vm.$el 属性
   //判断是否有render函数，如果没有，赋值上去,实际上到这里的时候，已经处理了render函数
   //带编译器的运行时会先把template生成render函数,才会运行到这里
   // src\platforms\web\entry-runtime-with-compiler.js 64行
@@ -190,6 +195,7 @@ export function mountComponent (
       measure(`vue ${name} patch`, startTag, endTag)
     }
   } else {
+    // _update函数执行，渲染成真实DOM,占位vnode被实例化子组件
     updateComponent = () => {
       vm._update(vm._render(), hydrating)
     }
@@ -202,6 +208,7 @@ export function mountComponent (
   /**
    * 准备好 renderWatcher ,调用updateComponent
    * 实际上就是调用vm._render()，会触发data数据的get函数，进行依赖收集
+   * new Watcher时vm._watcher会被赋值到这个watcher实例,以便手动调用 观察者的更新方法
    */
   new Watcher(vm, updateComponent, noop, {
     before () {
@@ -214,7 +221,7 @@ export function mountComponent (
 
   // manually mounted instance, call mounted on self
   // mounted is called for render-created child components in its inserted hook
-   // mounted 钩子执行
+   // mounted 钩子执行,组件挂载完成
   if (vm.$vnode == null) {
     vm._isMounted = true
     callHook(vm, 'mounted')

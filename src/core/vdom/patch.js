@@ -31,7 +31,9 @@ import {
 export const emptyNode = new VNode('', {}, [])
 
 const hooks = ['create', 'activate', 'update', 'remove', 'destroy']
-
+// 判断2个vnode是否值得比较
+//依次比较属性 key tag isComment是否相同，vnode.data(就是写render函数的第二个参数，是创建vnode的数据对象)属性是否都定义,并且是否相同的input类型
+// 或者 条件下 不清楚 TODO:
 function sameVnode (a, b) {
   return (
     a.key === b.key && (
@@ -48,7 +50,7 @@ function sameVnode (a, b) {
     )
   )
 }
-
+// 判断input的type是否相同或者都是'text,number,password,search,email,tel,url'类型中的一个输入框
 function sameInputType (a, b) {
   if (a.tag !== 'input') return true
   let i
@@ -66,7 +68,7 @@ function createKeyToOldIdx (children, beginIdx, endIdx) {
   }
   return map
 }
-//创建打补丁函数
+//创建打补丁函数，返回一个函数，用于打补丁  函数名 patch
 export function createPatchFunction (backend) {
   let i, j
   const cbs = {}
@@ -289,7 +291,7 @@ export function createPatchFunction (backend) {
       }
     }
   }
-
+// 创建子节点 vnode
   function createChildren (vnode, children, insertedVnodeQueue) {
     if (Array.isArray(children)) {
       if (process.env.NODE_ENV !== 'production') {
@@ -302,7 +304,7 @@ export function createPatchFunction (backend) {
       nodeOps.appendChild(vnode.elm, nodeOps.createTextNode(String(vnode.text)))
     }
   }
-
+// 是否需要patch
   function isPatchable (vnode) {
     while (vnode.componentInstance) {
       vnode = vnode.componentInstance._vnode
@@ -352,7 +354,7 @@ export function createPatchFunction (backend) {
       createElm(vnodes[startIdx], insertedVnodeQueue, parentElm, refElm, false, vnodes, startIdx)
     }
   }
-
+// 递归调用销毁钩子
   function invokeDestroyHook (vnode) {
     let i, j
     const data = vnode.data
@@ -409,7 +411,7 @@ export function createPatchFunction (backend) {
       removeNode(vnode.elm)
     }
   }
-
+// 更新子节点
   function updateChildren (parentElm, oldCh, newCh, insertedVnodeQueue, removeOnly) {
     let oldStartIdx = 0
     let newStartIdx = 0
@@ -481,7 +483,7 @@ export function createPatchFunction (backend) {
       removeVnodes(oldCh, oldStartIdx, oldEndIdx)
     }
   }
-
+// 遍历children节点，检测是否有重复的key属性值，并给出警告
   function checkDuplicateKeys (children) {
     const seenKeys = {}
     for (let i = 0; i < children.length; i++) {
@@ -499,14 +501,14 @@ export function createPatchFunction (backend) {
       }
     }
   }
-
+// 找出旧节点的id
   function findIdxInOld (node, oldCh, start, end) {
     for (let i = start; i < end; i++) {
       const c = oldCh[i]
       if (isDef(c) && sameVnode(node, c)) return i
     }
   }
-
+// 打补丁的方法在这：
   function patchVnode (
     oldVnode,
     vnode,
@@ -602,6 +604,7 @@ export function createPatchFunction (backend) {
   const isRenderedModule = makeMap('attrs,class,staticClass,staticStyle,key')
 
   // Note: this is a browser-only function so we can assume elms are DOM nodes.
+  // 仅限浏览器端使用的函数,因此我们可以假设elm是DOM节点
   function hydrate (elm, vnode, insertedVnodeQueue, inVPre) {
     let i
     const { tag, data, children } = vnode
@@ -705,8 +708,10 @@ export function createPatchFunction (backend) {
       return node.nodeType === (vnode.isComment ? 8 : 3)
     }
   }
-
+// 打补丁函数
+// 参数依次为 旧的vnode| dom节点, 新的vnode, web端 :hydrating=false , removeOnly=false
   return function patch (oldVnode, vnode, hydrating, removeOnly) {
+    // 如果传入新的vnode是null或者undefined，销毁组件
     if (isUndef(vnode)) {
       if (isDef(oldVnode)) invokeDestroyHook(oldVnode)
       return
@@ -714,21 +719,25 @@ export function createPatchFunction (backend) {
 
     let isInitialPatch = false
     const insertedVnodeQueue = []
-
+// 子组件初始化会走这里，创建元素
     if (isUndef(oldVnode)) {
       // empty mount (likely as component), create new root element
       isInitialPatch = true
       createElm(vnode, insertedVnodeQueue)
-    } else {
+    } else {//传了第一个参数走这里
+      // 如果oldVnode有nodeType属性，说明传入的oldVnode是真实DOM
       const isRealElement = isDef(oldVnode.nodeType)
+      // 如果第一个参数不是真实DOM并且新旧vnode值得比较，就调用 patchVnode 方法打补丁
       if (!isRealElement && sameVnode(oldVnode, vnode)) {
         // patch existing root node
         patchVnode(oldVnode, vnode, insertedVnodeQueue, null, null, removeOnly)
-      } else {
-        if (isRealElement) {
+      } else {//要么是真实DOM，要么新旧vnode不值得比较走这里
+        if (isRealElement) {  //第一个参数是真实DOM走这里
           // mounting to a real element
           // check if this is server-rendered content and if we can perform
           // a successful hydration.
+          // 挂载真实DOM，检查如果是服务端渲染内容 ，并且我们可以做一个成功的混合
+          // SSR_ATTR属性是服务端渲染标记，如果是服务端渲染设置hydrating参数为true
           if (oldVnode.nodeType === 1 && oldVnode.hasAttribute(SSR_ATTR)) {
             oldVnode.removeAttribute(SSR_ATTR)
             hydrating = true
@@ -749,14 +758,16 @@ export function createPatchFunction (backend) {
           }
           // either not server-rendered, or hydration failed.
           // create an empty node and replace it
+          // 创建一个空的vnode代替oldVnode并把elm属性挂载DOM
           oldVnode = emptyNodeAt(oldVnode)
         }
-
+          /*--------------------- 新旧vnode不值得比较走这里-------------------------*/
         // replacing existing element
+        // 替换已存在的元素 
         const oldElm = oldVnode.elm
-        const parentElm = nodeOps.parentNode(oldElm)
+        const parentElm = nodeOps.parentNode(oldElm)  //这句是找到旧DOM元素的父元素
 
-        // create new node
+        // create new node 创建新的DOM元素
         createElm(
           vnode,
           insertedVnodeQueue,
@@ -797,7 +808,7 @@ export function createPatchFunction (backend) {
           }
         }
 
-        // destroy old node
+        // destroy old node  销毁旧的DOM元素
         if (isDef(parentElm)) {
           removeVnodes([oldVnode], 0, 0)
         } else if (isDef(oldVnode.tag)) {

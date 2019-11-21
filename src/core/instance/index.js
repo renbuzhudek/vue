@@ -13,7 +13,7 @@ function Vue (options) {
   }
   this._init(options)
 }
-
+// 混入初始化，数据状态，事件，生命周期，渲染函数的相关方法
 initMixin(Vue)
 stateMixin(Vue)
 eventsMixin(Vue)
