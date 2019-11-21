@@ -3129,6 +3129,7 @@
 
   // inline hooks to be invoked on component VNodes during patch
   var componentVNodeHooks = {
+    //初始化组件实例，并挂载 
     init: function init (vnode, hydrating) {
       if (
         vnode.componentInstance &&
@@ -3136,13 +3137,16 @@
         vnode.data.keepAlive
       ) {
         // kept-alive components, treat as a patch
+        // 如果是keep-alive组件缓存的组件，那么打补丁
         var mountedNode = vnode; // work around flow
         componentVNodeHooks.prepatch(mountedNode, mountedNode);
       } else {
+        //创建子组件实例，并挂到 componentInstance 字段
         var child = vnode.componentInstance = createComponentInstanceForVnode(
           vnode,
           activeInstance
         );
+        //挂载子组件,在这里会触发子组件的生命周期,创建流程
         child.$mount(hydrating ? vnode.elm : undefined, hydrating);
       }
     },
@@ -3279,9 +3283,10 @@
     }
 
     // install component management hooks onto the placeholder node
+    //安装组件管理钩子到这个占位节点的data属性上
     installComponentHooks(data);
 
-    // return a placeholder vnode
+    // return a placeholder vnode   生成的是一个占位的虚拟DOM
     var name = Ctor.options.name || tag;
     var vnode = new VNode(
       ("vue-component-" + (Ctor.cid) + (name ? ("-" + name) : '')),
@@ -3292,7 +3297,7 @@
 
     return vnode
   }
-
+  //创建组件实例
   function createComponentInstanceForVnode (
     vnode, // we know it's MountedComponentVNode but flow doesn't
     parent // activeInstance in lifecycle state
@@ -3308,9 +3313,10 @@
       options.render = inlineTemplate.render;
       options.staticRenderFns = inlineTemplate.staticRenderFns;
     }
+    //用占位vnode上存放的组件构造函数实例化组件
     return new vnode.componentOptions.Ctor(options)
   }
-
+  // 安装组件钩子到占位vnode的data属性上
   function installComponentHooks (data) {
     var hooks = data.hook || (data.hook = {});
     for (var i = 0; i < hooksToMerge.length; i++) {
@@ -5917,7 +5923,7 @@
     }
     return map
   }
-
+  //创建打补丁函数
   function createPatchFunction (backend) {
     var i, j;
     var cbs = {};
@@ -5993,6 +5999,7 @@
       }
 
       vnode.isRootInsert = !nested; // for transition enter check
+      // 如果是组件，退出函数
       if (createComponent(vnode, insertedVnodeQueue, parentElm, refElm)) {
         return
       }
@@ -6014,7 +6021,7 @@
             );
           }
         }
-
+        //创建真实DOM，存到vnode的elm字段上
         vnode.elm = vnode.ns
           ? nodeOps.createElementNS(vnode.ns, tag)
           : nodeOps.createElement(tag, vnode);
@@ -6040,18 +6047,26 @@
         insert(parentElm, vnode.elm, refElm);
       }
     }
-
+  // 创建组件实例：
     function createComponent (vnode, insertedVnodeQueue, parentElm, refElm) {
       var i = vnode.data;
       if (isDef(i)) {
         var isReactivated = isDef(vnode.componentInstance) && i.keepAlive;
         if (isDef(i = i.hook) && isDef(i = i.init)) {
-          i(vnode, false /* hydrating */);
+          /**这里调用了componentVNodeHooks 的init钩子
+           * src\core\vdom\create-component.js 38行
+           */
+          i(vnode, false /* hydrating */);   
         }
         // after calling the init hook, if the vnode is a child component
         // it should've created a child instance and mounted it. the child
         // component also has set the placeholder vnode's elm.
         // in that case we can just return the element and be done.
+
+        //调用init钩子之后，如果vnode是子组件
+        //它应该创建一个子实例并挂载它
+        //在这种情况下，我们可以返回元素并完成。
+        //TODO:
         if (isDef(vnode.componentInstance)) {
           initComponent(vnode, insertedVnodeQueue);
           insert(parentElm, vnode.elm, refElm);

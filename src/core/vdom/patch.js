@@ -66,7 +66,7 @@ function createKeyToOldIdx (children, beginIdx, endIdx) {
   }
   return map
 }
-
+//创建打补丁函数
 export function createPatchFunction (backend) {
   let i, j
   const cbs = {}
@@ -141,6 +141,7 @@ export function createPatchFunction (backend) {
     }
 
     vnode.isRootInsert = !nested // for transition enter check
+    // 如果是组件，退出函数
     if (createComponent(vnode, insertedVnodeQueue, parentElm, refElm)) {
       return
     }
@@ -162,7 +163,7 @@ export function createPatchFunction (backend) {
           )
         }
       }
-
+      //创建真实DOM，存到vnode的elm字段上
       vnode.elm = vnode.ns
         ? nodeOps.createElementNS(vnode.ns, tag)
         : nodeOps.createElement(tag, vnode)
@@ -206,18 +207,26 @@ export function createPatchFunction (backend) {
       insert(parentElm, vnode.elm, refElm)
     }
   }
-
+// 创建组件实例：
   function createComponent (vnode, insertedVnodeQueue, parentElm, refElm) {
     let i = vnode.data
     if (isDef(i)) {
       const isReactivated = isDef(vnode.componentInstance) && i.keepAlive
       if (isDef(i = i.hook) && isDef(i = i.init)) {
-        i(vnode, false /* hydrating */)
+        /**这里调用了componentVNodeHooks 的init钩子
+         * src\core\vdom\create-component.js 38行
+         */
+        i(vnode, false /* hydrating */)   
       }
       // after calling the init hook, if the vnode is a child component
       // it should've created a child instance and mounted it. the child
       // component also has set the placeholder vnode's elm.
       // in that case we can just return the element and be done.
+
+      //调用init钩子之后，如果vnode是子组件
+      //它应该创建一个子实例并挂载它
+      //在这种情况下，我们可以返回元素并完成。
+      //TODO:
       if (isDef(vnode.componentInstance)) {
         initComponent(vnode, insertedVnodeQueue)
         insert(parentElm, vnode.elm, refElm)

@@ -34,6 +34,7 @@ import {
 
 // inline hooks to be invoked on component VNodes during patch
 const componentVNodeHooks = {
+  //初始化组件实例，并挂载 
   init (vnode: VNodeWithData, hydrating: boolean): ?boolean {
     if (
       vnode.componentInstance &&
@@ -41,13 +42,16 @@ const componentVNodeHooks = {
       vnode.data.keepAlive
     ) {
       // kept-alive components, treat as a patch
+      // 如果是keep-alive组件缓存的组件，那么打补丁
       const mountedNode: any = vnode // work around flow
       componentVNodeHooks.prepatch(mountedNode, mountedNode)
     } else {
+      //创建子组件实例，并挂到 componentInstance 字段
       const child = vnode.componentInstance = createComponentInstanceForVnode(
         vnode,
         activeInstance
       )
+      //挂载子组件,在这里会触发子组件的生命周期,创建流程
       child.$mount(hydrating ? vnode.elm : undefined, hydrating)
     }
   },
@@ -183,9 +187,10 @@ export function createComponent (
   }
 
   // install component management hooks onto the placeholder node
+  //安装组件管理钩子到这个占位节点的data属性上
   installComponentHooks(data)
 
-  // return a placeholder vnode
+  // return a placeholder vnode   生成的是一个占位的虚拟DOM
   const name = Ctor.options.name || tag
   const vnode = new VNode(
     `vue-component-${Ctor.cid}${name ? `-${name}` : ''}`,
@@ -204,7 +209,7 @@ export function createComponent (
 
   return vnode
 }
-
+//创建组件实例
 export function createComponentInstanceForVnode (
   vnode: any, // we know it's MountedComponentVNode but flow doesn't
   parent: any, // activeInstance in lifecycle state
@@ -220,9 +225,10 @@ export function createComponentInstanceForVnode (
     options.render = inlineTemplate.render
     options.staticRenderFns = inlineTemplate.staticRenderFns
   }
+  //用占位vnode上存放的组件构造函数实例化组件
   return new vnode.componentOptions.Ctor(options)
 }
-
+// 安装组件钩子到占位vnode的data属性上
 function installComponentHooks (data: VNodeData) {
   const hooks = data.hook || (data.hook = {})
   for (let i = 0; i < hooksToMerge.length; i++) {
