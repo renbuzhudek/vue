@@ -6058,7 +6058,7 @@
         insert(parentElm, vnode.elm, refElm);
       }
     }
-  // 创建组件实例：
+  // 创建组件实例：vm._vnode.elm挂载到parentElm上
     function createComponent (vnode, insertedVnodeQueue, parentElm, refElm) {
       var i = vnode.data;
       if (isDef(i)) {
@@ -6080,7 +6080,7 @@
         //TODO:
         if (isDef(vnode.componentInstance)) {
           initComponent(vnode, insertedVnodeQueue);
-          insert(parentElm, vnode.elm, refElm);
+          insert(parentElm, vnode.elm, refElm);//子组件的DOM元素插入到父元素上,完成挂载
           if (isTrue(isReactivated)) {
             reactivateComponent(vnode, insertedVnodeQueue, parentElm, refElm);
           }
