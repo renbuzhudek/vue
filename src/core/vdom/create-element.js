@@ -43,9 +43,9 @@ export function createElement (
   }
   return _createElement(context, tag, data, children, normalizationType)
 }
-
+// render方法调用的创建vnode的方法
 export function _createElement (
-  context: Component,
+  context: Component,   //当前调用render的组件实例对象
   tag?: string | Class<Component> | Function | Object,
   data?: VNodeData,
   children?: any,
@@ -107,9 +107,9 @@ export function _createElement (
       vnode = new VNode(
         config.parsePlatformTagName(tag), data, children,
         undefined, undefined, context
-      )
+      )                                                 //获取当前上下文环境组件的构造函数，tag就是组件id
     } else if ((!data || !data.pre) && isDef(Ctor = resolveAsset(context.$options, 'components', tag))) {
-      // component TODO: 如果是组件节点，创建组件
+      // component TODO: 如果是组件节点，创建占位节点，绑定data.hook,组件选项
       vnode = createComponent(Ctor, data, context, children, tag)
     } else {
       // unknown or unlisted namespaced elements
