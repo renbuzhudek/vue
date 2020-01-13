@@ -119,9 +119,10 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
     return
   }
   let ob: Observer | void
+  // 如果value上有__ob__对象赋值给ob
   if (hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
     ob = value.__ob__
-  } else if (
+  } else if (//如果需要观察，并且不是服务端，并且是数组或对象，并且可扩展，并且不是vue实例，new一个Observer
     shouldObserve &&
     !isServerRendering() &&
     (Array.isArray(value) || isPlainObject(value)) &&
@@ -129,14 +130,14 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
     !value._isVue
   ) {
     ob = new Observer(value)
-  }//判断是否是组件根data对象，vmCount计数器加1
+  }//判断如果是组件根data对象，vmCount计数器加1
   if (asRootData && ob) {
     ob.vmCount++
   }
   return ob
 }
 
-/**
+/** 定义响应式属性， 为obj对象的key属性设置get和set函数，做数据劫持
  * Define a reactive property on an Object.
  */
 export function defineReactive (
@@ -147,8 +148,8 @@ export function defineReactive (
   shallow?: boolean
 ) {
   const dep = new Dep()
-
-  const property = Object.getOwnPropertyDescriptor(obj, key)
+// 获取obj对象的key属性的描述符对象
+  const property = Object.getOwnPropertyDescriptor(obj, key) 
   if (property && property.configurable === false) {
     return
   }
@@ -156,10 +157,11 @@ export function defineReactive (
   // cater for pre-defined getter/setters
   const getter = property && property.get
   const setter = property && property.set
+  // 如果没有设置getter函数 并且参数是2个的情况下，赋值 val = obj[key]
   if ((!getter || setter) && arguments.length === 2) {
     val = obj[key]
   }
-
+// 如果val是数组或者对象并且可扩展，会递归调用observe,childOb=val.__ob__ 否则undefined
   let childOb = !shallow && observe(val)
   Object.defineProperty(obj, key, {
     enumerable: true,
@@ -168,9 +170,9 @@ export function defineReactive (
       const value = getter ? getter.call(obj) : val
       if (Dep.target) {  //依赖收集的时候，会生成watcher,然后Dep.target=watcher，然后触发get函数，最后dep.subs.push(watcher)完成依赖收集
         dep.depend()//等价于 dep.subs.push(watcher)
-        if (childOb) { //递归收集观察者
+        if (childOb) { //如果val是数组或对象并且可扩展，那么childOb就存在，val.__ob__.dep.subs收集watcher
           childOb.dep.depend()
-          if (Array.isArray(value)) {
+          if (Array.isArray(value)) {//如果value是数组，递归对数组元素上拥有 __ob__.dep的收集这个 watcher
             dependArray(value)
           }
         }

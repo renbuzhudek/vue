@@ -59,7 +59,7 @@ export function initMixin (Vue: Class<Component>) {
     initRender(vm)  //初始化渲染函数相关的设置
     callHook(vm, 'beforeCreate')//vm.$emit 生命周期钩子 beforeCreate
     initInjections(vm) // resolve injections before data/props 状态之前初始化注入
-    initState(vm)//初始化状态 data/props ,先处理props，后处理data
+    initState(vm)//依次初始化状态: props、methods、data、computed、watch
     initProvide(vm) // resolve provide after data/props 状态之后初始化提供商
     callHook(vm, 'created') //vm.$emit 生命周期钩子 created
 

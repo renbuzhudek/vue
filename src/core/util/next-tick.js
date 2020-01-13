@@ -5,11 +5,12 @@ import { noop } from 'shared/util'
 import { handleError } from './error'
 import { isIE, isIOS, isNative } from './env'
 
-export let isUsingMicroTask = false
-
-const callbacks = []
+export let isUsingMicroTask = false  //标记是否使用的是微任务
+// 存放异步执行的回调
+const callbacks = [] 
+// 一个标记，表示如果已经有 timerFunc 被推送到任务队列中，就不再重复推送
 let pending = false
-
+// 执行所有回调函数
 function flushCallbacks () {
   pending = false
   const copies = callbacks.slice(0)
@@ -83,7 +84,11 @@ if (typeof Promise !== 'undefined' && isNative(Promise)) {
     setTimeout(flushCallbacks, 0)
   }
 }
-
+ /*
+    延迟一个任务使其异步执行，在下一个tick时执行，一个立即执行函数，返回一个function
+    这个函数的作用是在macrotask或者microtask中推入一个timerFunc，在当前调用栈执行完以后依次执行直到执行到timerFunc
+    目的是延迟到当前调用栈执行完以后执行
+*/
 export function nextTick (cb?: Function, ctx?: Object) {
   let _resolve
   callbacks.push(() => {
