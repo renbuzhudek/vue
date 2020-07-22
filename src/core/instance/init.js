@@ -69,7 +69,7 @@ export function initMixin (Vue: Class<Component>) {
       mark(endTag)
       measure(`vue ${vm._name} init`, startTag, endTag)
     }
-
+// 如果提供了选项 el ，调用$mount方法挂载DOM，里面触发钩子 beforeMount mounted
     if (vm.$options.el) {
       vm.$mount(vm.$options.el)
     }
