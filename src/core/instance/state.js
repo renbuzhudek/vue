@@ -27,7 +27,7 @@ import {
   isServerRendering,
   isReservedAttribute
 } from '../util/index'
-
+// 这个对象只是一个模板对象，被使用的时候，都会被重写 get和 set属性
 const sharedPropertyDefinition = {
   enumerable: true,
   configurable: true,
@@ -44,20 +44,20 @@ export function proxy (target: Object, sourceKey: string, key: string) {
   }
   Object.defineProperty(target, key, sharedPropertyDefinition)
 }
-
+// 初始化状态
 export function initState (vm: Component) {
   vm._watchers = []
   const opts = vm.$options
-  if (opts.props) initProps(vm, opts.props)
-  if (opts.methods) initMethods(vm, opts.methods)
-  if (opts.data) {
+  if (opts.props) initProps(vm, opts.props)//初始化 props选项
+  if (opts.methods) initMethods(vm, opts.methods) //初始化 methods选项
+  if (opts.data) {//初始化data选项
     initData(vm)
   } else {
     observe(vm._data = {}, true /* asRootData */)
   }
-  if (opts.computed) initComputed(vm, opts.computed)
+  if (opts.computed) initComputed(vm, opts.computed)//初始化 computed选项
   if (opts.watch && opts.watch !== nativeWatch) {
-    initWatch(vm, opts.watch)
+    initWatch(vm, opts.watch) //初始化 watch 选项
   }
 }
 
@@ -183,7 +183,9 @@ export function getData (data: Function, vm: Component): any {
 }
 // 观察选项，懒观察
 const computedWatcherOptions = { lazy: true }
-
+/**TODO: 初始化computed选项
+* 核心在于 Watcher类
+*/
 function initComputed (vm: Component, computed: Object) {
   // $flow-disable-line
   const watchers = vm._computedWatchers = Object.create(null)
@@ -227,19 +229,22 @@ function initComputed (vm: Component, computed: Object) {
     }
   }
 }
-// 定义计算属性
+// 定义计算属性 
+// get函数：用闭包包装一个getter函数，返回vm._computedWatchers[key].value 也就是 Watcher.value属性值
+// set函数：如果userDef是函数，设置为空函数，如果是对象就赋值为userDef.set
+// 最后用defineProperty方法把computed选项的key定义为vm[key]属性
 export function defineComputed (
   target: any,
   key: string,
   userDef: Object | Function
 ) {
   const shouldCache = !isServerRendering()
-  if (typeof userDef === 'function') {
+  if (typeof userDef === 'function') {  //如果userDef是一个函数，就只定义get属性，set属性是一个空函数,此时就无法手动设置这个计算属性
     sharedPropertyDefinition.get = shouldCache
       ? createComputedGetter(key)
       : createGetterInvoker(userDef)
     sharedPropertyDefinition.set = noop
-  } else {
+  } else {//否则的话就是 userDef肯定是传的一个对象进来，就分别包装get和set函数
     sharedPropertyDefinition.get = userDef.get
       ? shouldCache && userDef.cache !== false
         ? createComputedGetter(key)
@@ -307,7 +312,7 @@ function initMethods (vm: Component, methods: Object) {
     vm[key] = typeof methods[key] !== 'function' ? noop : bind(methods[key], vm)
   }
 }
-
+// 初始化 watch 选项
 function initWatch (vm: Component, watch: Object) {
   for (const key in watch) {
     const handler = watch[key]
@@ -320,7 +325,7 @@ function initWatch (vm: Component, watch: Object) {
     }
   }
 }
-
+// 创建 Watcher
 function createWatcher (
   vm: Component,
   expOrFn: string | Function,
