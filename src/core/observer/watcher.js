@@ -72,10 +72,12 @@ export default class Watcher {
     this.newDeps = []
     this.depIds = new Set()
     this.newDepIds = new Set()
+    // 表达式，非生产模式值是getter函数转的字符串，否则是空字符串
     this.expression = process.env.NODE_ENV !== 'production'
       ? expOrFn.toString()
       : ''
     // parse expression for getter
+    //  expOrFn 转成函数赋值给 getter属性
     if (typeof expOrFn === 'function') {
       this.getter = expOrFn
     } else {
@@ -90,6 +92,7 @@ export default class Watcher {
         )
       }
     }
+    // 如果 选项 lazy 为true， value初始值设置为undefined，否则为调用get方法返回值
     this.value = this.lazy
       ? undefined
       : this.get()

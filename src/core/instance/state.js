@@ -181,7 +181,7 @@ export function getData (data: Function, vm: Component): any {
     // popTarget()
   }
 }
-
+// 观察选项，懒观察
 const computedWatcherOptions = { lazy: true }
 
 function initComputed (vm: Component, computed: Object) {
@@ -199,7 +199,9 @@ function initComputed (vm: Component, computed: Object) {
         vm
       )
     }
-
+    // 计算属性的核心部分，就是这个 Watcher类
+// 观察每个计算属性，实例化 Watcher类，计算属性的getter函数作为getter属性传给Watcher
+// 参数依次为 组件实例，计算属性的getter函数，空函数，选项
     if (!isSSR) {
       // create internal watcher for the computed property.
       watchers[key] = new Watcher(
@@ -213,6 +215,7 @@ function initComputed (vm: Component, computed: Object) {
     // component-defined computed properties are already defined on the
     // component prototype. We only need to define computed properties defined
     // at instantiation here.
+    // 如果 key不在实例上，就定义为计算属性，否则给出警告
     if (!(key in vm)) {
       defineComputed(vm, key, userDef)
     } else if (process.env.NODE_ENV !== 'production') {
@@ -224,7 +227,7 @@ function initComputed (vm: Component, computed: Object) {
     }
   }
 }
-
+// 定义计算属性
 export function defineComputed (
   target: any,
   key: string,
