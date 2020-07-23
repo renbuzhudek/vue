@@ -218,6 +218,7 @@ export default class Watcher {
    * Evaluate the value of the watcher.
    * This only gets called for lazy watchers.
    */
+  // 只有惰性观察者会执行这个函数，获取观察者的value值
   evaluate () {
     this.value = this.get()
     this.dirty = false

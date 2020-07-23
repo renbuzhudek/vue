@@ -33,6 +33,7 @@ import {
 } from 'weex/runtime/recycle-list/render-component-template'
 
 // inline hooks to be invoked on component VNodes during patch
+//  patch期间在组件 vnode上调用的内联钩子
 const componentVNodeHooks = {
   //初始化组件实例，并挂载 
   init (vnode: VNodeWithData, hydrating: boolean): ?boolean {
@@ -116,12 +117,14 @@ export function createComponent (
   const baseCtor = context.$options._base
 
   // plain options object: turn it into a constructor
+  // 如果是选项对象，创建成构造函数
   if (isObject(Ctor)) {
     Ctor = baseCtor.extend(Ctor)
   }
 
   // if at this stage it's not a constructor or an async component factory,
   // reject.
+  // 如果到这一步了， Ctor不是构造函数或异步组件工厂，报错并返回
   if (typeof Ctor !== 'function') {
     if (process.env.NODE_ENV !== 'production') {
       warn(`Invalid Component definition: ${String(Ctor)}`, context)
@@ -130,9 +133,11 @@ export function createComponent (
   }
 
   // async component
+  // 如果构造函数没有定义cid属性，说明是异步组件
   let asyncFactory
   if (isUndef(Ctor.cid)) {
     asyncFactory = Ctor
+    // 获取异步组件的构造函数
     Ctor = resolveAsyncComponent(asyncFactory, baseCtor)
     if (Ctor === undefined) {
       // return a placeholder node for async component, which is rendered
@@ -152,17 +157,21 @@ export function createComponent (
 
   // resolve constructor options in case global mixins are applied after
   // component constructor creation
+  //TODO:
   resolveConstructorOptions(Ctor)
 
   // transform component v-model data into props & events
+  // 转换v-mode指令为 props和事件监听
   if (isDef(data.model)) {
     transformModel(Ctor.options, data)
   }
 
   // extract props
+  // 摘取 props选项
   const propsData = extractPropsFromVNodeData(data, Ctor, tag)
 
   // functional component
+  // 创建函数式组件
   if (isTrue(Ctor.options.functional)) {
     return createFunctionalComponent(Ctor, propsData, data, context, children)
   }
@@ -173,7 +182,7 @@ export function createComponent (
   // replace with listeners with .native modifier
   // so it gets processed during parent component patch.
   data.on = data.nativeOn
-
+// 抽象组件不保除了 props 监听器 slot之外的任何东西
   if (isTrue(Ctor.options.abstract)) {
     // abstract components do not keep anything
     // other than props & listeners & slot
@@ -190,7 +199,8 @@ export function createComponent (
   //安装组件管理钩子到这个占位节点的data属性上
   installComponentHooks(data)
 
-  // return a placeholder vnode   生成的是一个占位的虚拟DOM
+  // return a placeholder vnode   
+  // 生成占位vnode
   const name = Ctor.options.name || tag
   const vnode = new VNode(
     `vue-component-${Ctor.cid}${name ? `-${name}` : ''}`,

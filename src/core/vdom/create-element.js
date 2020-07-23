@@ -96,6 +96,7 @@ export function _createElement (
   if (typeof tag === 'string') {
     let Ctor
     ns = (context.$vnode && context.$vnode.ns) || config.getTagNamespace(tag)
+    // 判断tag是否是原生标签，走这里,创建原生DOM的 vnode 详见 vue\src\platforms\web\util\element.js
     if (config.isReservedTag(tag)) {
       // platform built-in elements
       if (process.env.NODE_ENV !== 'production' && isDef(data) && isDef(data.nativeOn)) {
@@ -107,11 +108,11 @@ export function _createElement (
       vnode = new VNode(
         config.parsePlatformTagName(tag), data, children,
         undefined, undefined, context
-      )                                                 //获取当前上下文环境组件的构造函数，tag就是组件id
+      )    //否则就应当是创建组件的占位vnode，查找组件的构造函数
     } else if ((!data || !data.pre) && isDef(Ctor = resolveAsset(context.$options, 'components', tag))) {
-      // component TODO: 如果是组件节点，创建占位节点，绑定data.hook,组件选项
+      // 传入组件的构造函数和其他属性，创建占位节点，绑定data.hook,组件选项
       vnode = createComponent(Ctor, data, context, children, tag)
-    } else {
+    } else {//走这里就是没有找到组件的构造函数，那么创建一个 tag名的 vnode
       // unknown or unlisted namespaced elements
       // check at runtime because it may get assigned a namespace when its
       // parent normalizes children
@@ -122,8 +123,10 @@ export function _createElement (
     }
   } else {
     // direct component options / constructor
+    // 直接用构造函数或组件选项创建组件
     vnode = createComponent(tag, data, context, children)
   }
+  // 返回生成的 vnode 对象
   if (Array.isArray(vnode)) {
     return vnode
   } else if (isDef(vnode)) {
