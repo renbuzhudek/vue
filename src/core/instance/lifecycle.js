@@ -221,7 +221,8 @@ export function mountComponent (
 
   // manually mounted instance, call mounted on self
   // mounted is called for render-created child components in its inserted hook
-   // mounted 钩子执行,组件挂载完成
+   // mounted 钩子执行,组件挂载完成 这里要判断 vm.$vnode 未定义，才调用mounted钩子
+  //  只有根实例的$vnode不存在 
   if (vm.$vnode == null) {
     vm._isMounted = true
     callHook(vm, 'mounted')

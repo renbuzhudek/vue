@@ -171,14 +171,14 @@ export function getData (data: Function, vm: Component): any {
   	msg: String
   },
    */
-  // pushTarget()
+  pushTarget()
   try {
     return data.call(vm, vm)
   } catch (e) {
     handleError(e, vm, `data()`)
     return {}
   } finally {
-    // popTarget()
+    popTarget()
   }
 }
 // 观察选项，懒观察
@@ -238,7 +238,7 @@ export function defineComputed (
   key: string,
   userDef: Object | Function
 ) {
-  const shouldCache = !isServerRendering()
+  const shouldCache = !isServerRendering()//不是服务端渲染，就可以缓存
   if (typeof userDef === 'function') {  //如果userDef是一个函数，就只定义get属性，set属性是一个空函数,此时就无法手动设置这个计算属性
     sharedPropertyDefinition.get = shouldCache
       ? createComputedGetter(key)
@@ -263,13 +263,14 @@ export function defineComputed (
   }
   Object.defineProperty(target, key, sharedPropertyDefinition)
 }
-
-function createComputedGetter (key) {
+// 可缓存的计算属性get方法
+// 创建计算属性的get函数，返回一个函数，返回值为 watcher.value，也就是说watcher的value属性改变了，返回值才会变化，这就起到了缓存的作用
+function createComputedGetter (key) { 
   return function computedGetter () {
     const watcher = this._computedWatchers && this._computedWatchers[key]
     if (watcher) {
-      if (watcher.dirty) {
-        watcher.evaluate()
+      if (watcher.dirty) {//lazy=true这个属性值首次是true,
+        watcher.evaluate() //调用这个办法，执行watcher的 get方法，进行依赖收集，获取value值，因为计算属性是惰性执行的
       }
       if (Dep.target) {
         watcher.depend()
@@ -278,7 +279,7 @@ function createComputedGetter (key) {
     }
   }
 }
-
+//不可缓存的计算属性get方法，用于服务端渲染
 function createGetterInvoker(fn) {
   return function computedGetter () {
     return fn.call(this, this)

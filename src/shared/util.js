@@ -21,7 +21,7 @@ export function isFalse (v: any): boolean %checks {
 }
 
 /**
- * Check if value is primitive.
+ * Check if value is primitive. 检查是否是原始类型
  */
 export function isPrimitive (value: any): boolean %checks {
   return (
@@ -102,6 +102,7 @@ export function toNumber (val: string): number | string {
 /**
  * Make a map and return a function for checking if a key
  * is in that map.
+ * 把str字符串以逗号分隔数组，转成map对象，返回一个函数，返回布尔值
  */
 export function makeMap (
   str: string,
@@ -119,16 +120,19 @@ export function makeMap (
 
 /**
  * Check if a tag is a built-in tag.
+ * 检查是否内置标签
  */
 export const isBuiltInTag = makeMap('slot,component', true)
 
 /**
  * Check if an attribute is a reserved attribute.
+ * 检查是否是保留属性
  */
 export const isReservedAttribute = makeMap('key,ref,slot,slot-scope,is')
 
 /**
  * Remove an item from an array.
+ * 从数组删除匹配到的第一个成员
  */
 export function remove (arr: Array<any>, item: any): Array<any> | void {
   if (arr.length) {
@@ -141,6 +145,7 @@ export function remove (arr: Array<any>, item: any): Array<any> | void {
 
 /**
  * Check whether an object has the property.
+ * 检查对象是否包含属性key
  */
 const hasOwnProperty = Object.prototype.hasOwnProperty
 export function hasOwn (obj: Object | Array<*>, key: string): boolean {
@@ -227,6 +232,7 @@ export function toArray (list: any, start?: number): Array<any> {
 
 /**
  * Mix properties into target object.
+ * 把 _form对象属性混合到to对象上
  */
 export function extend (to: Object, _from: ?Object): Object {
   for (const key in _from) {
@@ -254,17 +260,19 @@ export function toObject (arr: Array<any>): Object {
  * Perform no operation.
  * Stubbing args to make Flow happy without leaving useless transpiled code
  * with ...rest (https://flow.org/blog/2017/05/07/Strict-Function-Call-Arity/).
+ * 不执行操作的空函数
  */
 export function noop (a?: any, b?: any, c?: any) {}
 
 /**
  * Always return false.
+ * 永远返回false
  */
 export const no = (a?: any, b?: any, c?: any) => false
 
 /* eslint-enable no-unused-vars */
 
-/**
+/**返回传入的值
  * Return the same value.
  */
 export const identity = (_: any) => _
@@ -331,6 +339,7 @@ export function looseIndexOf (arr: Array<mixed>, val: mixed): number {
 
 /**
  * Ensure a function is called only once.
+ * 确保一个函数只被执行一次
  */
 export function once (fn: Function): Function {
   let called = false

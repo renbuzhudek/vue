@@ -28,9 +28,11 @@ export function initRender (vm: Component) {
   // so that we get proper render context inside it.
   // args order: tag, data, children, normalizationType, alwaysNormalize
   // internal version is used by render functions compiled from templates
+  // 如果是编译器编译出来的render函数，会走这个函数来创建vnode，最后一个参数固定是 false alwaysNormalize = false
   vm._c = (a, b, c, d) => createElement(vm, a, b, c, d, false)
   // normalization is always applied for the public version, used in
   // user-written render functions.
+  // 用户编写的渲染函数，使用的是这个方法，最后一个参数固定是 true，对应 alwaysNormalize =true
   vm.$createElement = (a, b, c, d) => createElement(vm, a, b, c, d, true)
 
   // $attrs & $listeners are exposed for easier HOC creation.
@@ -91,7 +93,7 @@ export function renderMixin (Vue: Class<Component>) {
       //彼此分开。嵌套组件的render fn被调用
       //修补父组件时。
       currentRenderingInstance = vm
-      //调用组件选项render函数,生成vnode
+      //调用组件选项的render函数,参数是 vm.$createElement，返回生成的vnode
       vnode = render.call(vm._renderProxy, vm.$createElement)
     } catch (e) {
       handleError(e, vm, `render`)

@@ -50,9 +50,11 @@ export default class Watcher {
     isRenderWatcher?: boolean
   ) {
     this.vm = vm
+    // 把当前 watcher实例赋值到 vm._watcher属性,组件实例化时才有这一步，代码在 vue\src\core\instance\lifecycle.js
     if (isRenderWatcher) {
       vm._watcher = this
     }
+    // 把 watcher实例存入数组 vm._watchers
     vm._watchers.push(this)
     // options
     if (options) {
@@ -108,10 +110,12 @@ export default class Watcher {
     const vm = this.vm
     try {
       /**TODO:
-       * 实际调用 ：vm._update(vm._render(), hydrating)  lifecycle.js 197行
+       * 1.作为实例独有的watcher时，getter函数是 updateComponent，实际调用 ：vm._update(vm._render(), hydrating)  lifecycle.js 197行
        * 它会先执行 vm._render() 方法，因为这个方法会生成 渲染 VNode，
        * 并且在这个过程中会对 vm 上的数据访问，这个时候就触发了数据对象的 getter,
        * 从而watcher观察者被收集到 响应式属性持有的dep.subs里面
+       * 
+       * 2. 作为计算属性的watcher时，getter函数是计算属性的get函数，返回值作为计算属性的值
        */
       value = this.getter.call(vm, vm)
     } catch (e) {

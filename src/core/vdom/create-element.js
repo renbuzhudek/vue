@@ -20,8 +20,8 @@ import {
   simpleNormalizeChildren
 } from './helpers/index'
 
-const SIMPLE_NORMALIZE = 1
-const ALWAYS_NORMALIZE = 2
+const SIMPLE_NORMALIZE = 1  //简单规范化
+const ALWAYS_NORMALIZE = 2   //总是需要规范化
 
 // wrapper function for providing a more flexible interface
 // without getting yelled at by flow
@@ -33,11 +33,15 @@ export function createElement (
   normalizationType: any,
   alwaysNormalize: boolean
 ): VNode | Array<VNode> {
+  // 如果 data是数组或者原始类型 string,number,boolean,symbol,那就说明原本应该传入的data属性被省略了
+  // 所以传入的data 是children,传入的children是 normalizationType
   if (Array.isArray(data) || isPrimitive(data)) {
     normalizationType = children
     children = data
-    data = undefined
+    data = undefined //data就赋值undefined
   }
+  // 这个 alwaysNormalize 值两种情况，用户手动编写的render函数，这个值会是true，那么normalizationType=2
+  // 如果是编译器经过模板编译出来的render函数，这个值会是false，那么normalizationType由编译器决定
   if (isTrue(alwaysNormalize)) {
     normalizationType = ALWAYS_NORMALIZE
   }
@@ -51,6 +55,7 @@ export function _createElement (
   children?: any,
   normalizationType?: number
 ): VNode | Array<VNode> {
+  // 如果data参数有 __ob__属性，说明是响应式属性，那么给出警告,返回一个空的vnode
   if (isDef(data) && isDef((data: any).__ob__)) {
     process.env.NODE_ENV !== 'production' && warn(
       `Avoid using observed data object as vnode data: ${JSON.stringify(data)}\n` +
@@ -68,6 +73,7 @@ export function _createElement (
     return createEmptyVNode()
   }
   // warn against non-primitive key
+  // 检查key属性，如果不是基本类型，给出警告
   if (process.env.NODE_ENV !== 'production' &&
     isDef(data) && isDef(data.key) && !isPrimitive(data.key)
   ) {
@@ -80,6 +86,7 @@ export function _createElement (
     }
   }
   // support single function children as default scoped slot
+  // 支持把唯一的函数子节点转成 default 作用域插槽，然后清空children数组
   if (Array.isArray(children) &&
     typeof children[0] === 'function'
   ) {
@@ -87,14 +94,16 @@ export function _createElement (
     data.scopedSlots = { default: children[0] }
     children.length = 0
   }
+  // 如果 normalizationType=2，进行规范化处理
   if (normalizationType === ALWAYS_NORMALIZE) {
     children = normalizeChildren(children)
-  } else if (normalizationType === SIMPLE_NORMALIZE) {
+  } else if (normalizationType === SIMPLE_NORMALIZE) {  //否则如果 normalizationType=1 进行简单的规范化处理
     children = simpleNormalizeChildren(children)
   }
   let vnode, ns
   if (typeof tag === 'string') {
     let Ctor
+    // 获取标签的命名空间，svg | math | undefined 
     ns = (context.$vnode && context.$vnode.ns) || config.getTagNamespace(tag)
     // 判断tag是否是原生标签，走这里,创建原生DOM的 vnode 详见 vue\src\platforms\web\util\element.js
     if (config.isReservedTag(tag)) {

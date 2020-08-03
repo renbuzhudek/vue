@@ -36,7 +36,7 @@ export const isPreTag = (tag: ?string): boolean => tag === 'pre'
 export const isReservedTag = (tag: string): ?boolean => {
   return isHTMLTag(tag) || isSVG(tag)
 }
-
+// 获取tag的命名空间，svg或者math
 export function getTagNamespace (tag: string): ?string {
   if (isSVG(tag)) {
     return 'svg'

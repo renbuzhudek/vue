@@ -33,17 +33,18 @@ import {
 } from 'weex/runtime/recycle-list/render-component-template'
 
 // inline hooks to be invoked on component VNodes during patch
-//  patch期间在组件 vnode上调用的内联钩子
+//  patch期间在组件 vnode上调用的内联钩子，进行实例化，挂载，销毁 等操作
+//这里的参数 vnode  都是 组件占位vnode  
 const componentVNodeHooks = {
   //初始化组件实例，并挂载 
   init (vnode: VNodeWithData, hydrating: boolean): ?boolean {
     if (
-      vnode.componentInstance &&
-      !vnode.componentInstance._isDestroyed &&
-      vnode.data.keepAlive
+      vnode.componentInstance && //这个占位节点上存在组件实例
+      !vnode.componentInstance._isDestroyed && //没有被销毁
+      vnode.data.keepAlive  //被keepAlive缓存的组件的标记
     ) {
       // kept-alive components, treat as a patch
-      // 如果是keep-alive组件缓存的组件，那么打补丁
+      // 如果是keep-alive组件缓存的组件，那么打补丁，传入的新旧节点一样，复用
       const mountedNode: any = vnode // work around flow
       componentVNodeHooks.prepatch(mountedNode, mountedNode)
     } else {
@@ -52,7 +53,7 @@ const componentVNodeHooks = {
         vnode,
         activeInstance
       )
-      //调用$mount方法触发子组件的生命周期,创建流程，子组件的mounted事件会在父组件完成patch的最后一行触发
+      //调用vm.$mount方法触发子组件的生命周期,创建流程，子组件的mounted事件会在父组件完成patch的最后一行触发
       child.$mount(hydrating ? vnode.elm : undefined, hydrating)
     }
   },
@@ -88,7 +89,7 @@ const componentVNodeHooks = {
       }
     }
   },
-
+// 调用 vm.$destroy()销毁组件
   destroy (vnode: MountedComponentVNode) {
     const { componentInstance } = vnode
     if (!componentInstance._isDestroyed) {
@@ -200,7 +201,7 @@ export function createComponent (
   installComponentHooks(data)
 
   // return a placeholder vnode   
-  // 生成占位vnode
+  // 为组件创建占位vnode
   const name = Ctor.options.name || tag
   const vnode = new VNode(
     `vue-component-${Ctor.cid}${name ? `-${name}` : ''}`,
