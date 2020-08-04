@@ -16,7 +16,7 @@ const seenObjects = new Set()
  */
 export function traverse (val: any) {
   _traverse(val, seenObjects)
-  seenObjects.clear()
+  seenObjects.clear()//使用完后清空 Set
 }
 
 function _traverse (val: any, seen: SimpleSet) {
@@ -32,6 +32,10 @@ function _traverse (val: any, seen: SimpleSet) {
     }
     seen.add(depId)
   }
+  /**
+   * 这里递归遍历访问 响应式对象val的属性,触发属性的get方法
+   *  
+   **/   
   if (isA) {
     i = val.length
     while (i--) _traverse(val[i], seen)

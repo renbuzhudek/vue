@@ -19,7 +19,7 @@ import {
   noop,
   hasOwn,
   hyphenate,
-  isReserved,
+  isReserved,//是否保留字符串开头 $ 或 _
   handleError,
   nativeWatch,
   validateProp,
@@ -34,7 +34,9 @@ const sharedPropertyDefinition = {
   get: noop,
   set: noop
 }
-
+// 架设一层访问代理
+// 例如参数： vm ,_data ,key
+// 访问数据状态 vm[key],实际上是访问 vm._data[key]
 export function proxy (target: Object, sourceKey: string, key: string) {
   sharedPropertyDefinition.get = function proxyGetter () {
     return this[sourceKey][key]
@@ -111,6 +113,7 @@ function initProps (vm: Component, propsOptions: Object) {
 // 初始化 data数据对象，做数据劫持
 function initData (vm: Component) {
   let data = vm.$options.data
+  // 调用data函数，将返回的对象赋值给 vm._data属性
   data = vm._data = typeof data === 'function'
     ? getData(data, vm)   //生成data数据对象，同时并不触发依赖收集
     : data || {}
@@ -162,6 +165,7 @@ export function getData (data: Function, vm: Component): any {
    * mountComponent函数内断点到子组件的 new  Watcher，打印出Dep.target依然存在，那么问题就在这，父组件没有正确清空target,
    * 再次断点到 pushTarget 和popTarget,发现首次pushTarget调用了2次，一次存了watcher,一次存了undefined,然后才调用popTarget，导致最后
    * parent 收集完watcher时，Dep.target指向了 parent 的renderWatcher,但是并未定位到那个地方会调用2次pushTarget
+   * 查看输出的代码，  pushTarget 和popTarget 是成对出现使用的，也就是先设置 Dep.target=watcher|undefined ，然后恢复到上一个状态，最终结果是Dep.target=undefined
    *   data: function() {
   	return {
     	localMsg: this.msg
@@ -171,6 +175,8 @@ export function getData (data: Function, vm: Component): any {
   	msg: String
   },
    */
+
+  //  pushTarget 参数为空，那么就设置了 Dep.target=undefined,所以下面调用data函数时，就禁止了响应式属性进行依赖收集
   pushTarget()
   try {
     return data.call(vm, vm)
@@ -178,7 +184,7 @@ export function getData (data: Function, vm: Component): any {
     handleError(e, vm, `data()`)
     return {}
   } finally {
-    popTarget()
+    popTarget()//恢复到上一个Dep.target
   }
 }
 // 观察选项，懒观察
@@ -209,7 +215,7 @@ function initComputed (vm: Component, computed: Object) {
       watchers[key] = new Watcher(
         vm,
         getter || noop,
-        noop,
+        noop,//传空函数，什么也不做
         computedWatcherOptions
       )
     }
@@ -363,6 +369,7 @@ export function stateMixin (Vue: Class<Component>) {
       warn(`$props is readonly.`, this)
     }
   }
+  // 设置 vm['$data'] vm['$props'] 属性代理 vm._data vm._props 对象，禁止直接修改
   Object.defineProperty(Vue.prototype, '$data', dataDef)
   Object.defineProperty(Vue.prototype, '$props', propsDef)
 
@@ -382,12 +389,13 @@ export function stateMixin (Vue: Class<Component>) {
     options.user = true
     const watcher = new Watcher(vm, expOrFn, cb, options)
     if (options.immediate) {
-      try {
+      try {//如果是立即执行的watch,调用回调函数，传入  watcher.value
         cb.call(vm, watcher.value)
       } catch (error) {
         handleError(error, vm, `callback for immediate watcher "${watcher.expression}"`)
       }
     }
+    // 返回一个函数，调用后可以解除监听
     return function unwatchFn () {
       watcher.teardown()
     }
