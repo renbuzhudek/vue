@@ -65,7 +65,7 @@ export function initState (vm: Component) {
 
 function initProps (vm: Component, propsOptions: Object) {
   const propsData = vm.$options.propsData || {}
-  const props = vm._props = {}
+  const props = vm._props = {}//初始化 vm._props 属性值为一个空对象
   // cache prop keys so that future props updates can iterate using Array
   // instead of dynamic object key enumeration.
   const keys = vm.$options._propKeys = []
@@ -73,7 +73,7 @@ function initProps (vm: Component, propsOptions: Object) {
   // root instance props should be converted
   if (!isRoot) {
     toggleObserving(false)
-  }
+  }//遍历 propsOptions的key,定义为响应式属性，这里是直接调用defineReactive，因此 vm._props根对象上没有属性__ob__(props用不上这个属性)
   for (const key in propsOptions) {
     keys.push(key)
     const value = validateProp(key, propsOptions, propsData, vm)
@@ -156,16 +156,16 @@ function initData (vm: Component) {
 //获取data数据对象, 调用数据获取程序时禁用dep收集
 export function getData (data: Function, vm: Component): any {
   // #7573 disable dep collection when invoking data getters
-  /**例：data中依赖了props
-   * 这种情况，如果不禁止dep收集依赖， 那么首次修改msg就会导致父组件 updated 钩子触发2次
-   * 那么就说明有2个dep收集了父组件的renderWatcher,导致updated调用2次
-   * 换句话说父组件的data.msg 和子组件的props.msg初始化阶段都触发了get进行了依赖收集，并且都是收集的父组件的renderWatcher,那么set时就导致重复触发视图更新
-   * 触发时机：从生命周期调用顺序可以看出，watcher收集发生顺序是 parent -> children ,
-   * defineReactive 函数内get上断点可以看出，父组件的data.msg属性正常收集了一次 renderWatcher ,而子组件props.msg同样收集了一次父组件的 renderWatcher
-   * mountComponent函数内断点到子组件的 new  Watcher，打印出Dep.target依然存在，那么问题就在这，父组件没有正确清空target,
-   * 再次断点到 pushTarget 和popTarget,发现首次pushTarget调用了2次，一次存了watcher,一次存了undefined,然后才调用popTarget，导致最后
-   * parent 收集完watcher时，Dep.target指向了 parent 的renderWatcher,但是并未定位到那个地方会调用2次pushTarget
-   * 查看输出的代码，  pushTarget 和popTarget 是成对出现使用的，也就是先设置 Dep.target=watcher|undefined ，然后恢复到上一个状态，最终结果是Dep.target=undefined
+  /**可以看到 pushTarget参数是undefined,也就是说data函数被调用时，是禁止依赖收集的，
+   * 考虑这种情况，data依赖一个props属性msg,如果不禁止依赖收集，那么父组件实例化时，
+   * new Watcher的get函数调用了pushTarget(this),设置Dep.target=父renderWatcher,
+   * 父组件依赖收集完毕，开始子组件流程，子组件初始化props状态定义为响应式属性，
+   * 接着初始化子组件的data状态，由于没有禁止依赖收集，此时,因为data函数访问了props.msg，
+   * 触发了props.msg进行依赖收集，因此在子组件该props.msg也收集到父renderWatcher，
+   * 这就导致首次修改msg,父组件调用2次update钩子
+   * 再次修改msg就正常了，原因是父组件的renderWatcher重新执行get函数进行依赖收集，
+   * newDeps数组只有一个成员是当前vm.msg持有的,而watcher.deps里面有2个deps,
+   * 因此删除了子组件props.msg持有的那个dep订阅
    *   data: function() {
   	return {
     	localMsg: this.msg
@@ -189,7 +189,7 @@ export function getData (data: Function, vm: Component): any {
 }
 // 观察选项，懒观察
 const computedWatcherOptions = { lazy: true }
-/**TODO: 初始化computed选项
+/**初始化computed选项
 * 核心在于 Watcher类
 */
 function initComputed (vm: Component, computed: Object) {

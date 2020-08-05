@@ -153,21 +153,21 @@ export default class Watcher {
       this.newDepIds.add(id)
       this.newDeps.push(dep)
       if (!this.depIds.has(id)) {//如果depIds数组没有这个dep.id,说明当前watcher没有被这个dep收集，调用dep.addSub(this)，让dep收集到当前watcher
-        dep.addSub(this)
+        dep.addSub(this)//添加订阅
       }
     }
   }
 
   /**
    * Clean up for dependency collection.
-   * TODO:清理依赖集合
+   * 清理依赖集合
    */
   cleanupDeps () {
     let i = this.deps.length
     while (i--) {//遍历 deps
       const dep = this.deps[i]
       if (!this.newDepIds.has(dep.id)) {//如果 newDepIds数组里面没有这个dep.id，就从dep.subs中移除当前的watcher
-        dep.removeSub(this)
+        dep.removeSub(this)//取消订阅
       }
     }
     //  赋值 this.depIds = this.newDepIds   this.deps = this.newDeps ，然后清空 newDepIds，newDeps
@@ -190,10 +190,10 @@ export default class Watcher {
     /* istanbul ignore else */
     if (this.lazy) {
       this.dirty = true
-    } else if (this.sync) {
+    } else if (this.sync) {//如果是同步更新，直接调用 run
       this.run()
     } else {
-      queueWatcher(this) // TODO: 要测试一下：renderWatcher和computed走这里，异步更新试图，里面还是会调用run方法
+      queueWatcher(this) //异步更新试图，里面还是会调用run方法
     }
   }
 
@@ -253,7 +253,7 @@ export default class Watcher {
 
   /**
    * Remove self from all dependencies' subscriber list.
-   * TODO:从所有依赖项的订阅服务器列表中删除自己
+   * 从所有依赖项的订阅服务器列表中删除自己
    */
   teardown () {
     if (this.active) {
@@ -267,7 +267,7 @@ export default class Watcher {
       while (i--) {
         this.deps[i].removeSub(this)
       }
-      this.active = false
+      this.active = false //删掉之后，active状态变为false
     }
   }
 }

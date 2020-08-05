@@ -129,7 +129,7 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
     Object.isExtensible(value) &&
     !value._isVue
   ) {
-    ob = new Observer(value)
+    ob = new Observer(value) //为value创建 Observer对象并赋值到属性 '__ob__'上
   }//判断如果是组件根data对象，vmCount计数器加1
   if (asRootData && ob) {
     ob.vmCount++
@@ -140,6 +140,7 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
 /** 定义响应式属性， 为obj对象的key属性设置get和set函数，做数据劫持
  * Define a reactive property on an Object.
  */
+// window.$deps=[]
 export function defineReactive (
   obj: Object,
   key: string,
@@ -148,6 +149,7 @@ export function defineReactive (
   shallow?: boolean
 ) {
   const dep = new Dep()
+  // window.$deps.push({dep,key,obj})
 // 获取obj对象的key属性的描述符对象
   const property = Object.getOwnPropertyDescriptor(obj, key) 
   if (property && property.configurable === false) {
