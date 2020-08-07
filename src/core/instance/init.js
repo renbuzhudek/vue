@@ -75,7 +75,7 @@ export function initMixin (Vue: Class<Component>) {
     }
   }
 }
-
+// 初始化内部组件
 export function initInternalComponent (vm: Component, options: InternalComponentOptions) {
   const opts = vm.$options = Object.create(vm.constructor.options)
   // doing this because it's faster than dynamic enumeration.
@@ -118,7 +118,7 @@ export function resolveConstructorOptions (Ctor: Class<Component>) {
   }
   return options
 }
-
+// 解析修改了的选项
 function resolveModifiedOptions (Ctor: Class<Component>): ?Object {
   let modified
   const latest = Ctor.options
