@@ -4,15 +4,18 @@ import config from 'core/config'
 import { warn, makeMap, isNative } from '../util/index'
 
 let initProxy
-
+/**
+ * 用于DEV环境，给出有好的警告提示
+ */
 if (process.env.NODE_ENV !== 'production') {
+  //允许使用的全局API
   const allowedGlobals = makeMap(
     'Infinity,undefined,NaN,isFinite,isNaN,' +
     'parseFloat,parseInt,decodeURI,decodeURIComponent,encodeURI,encodeURIComponent,' +
     'Math,Number,Date,Array,Object,Boolean,String,RegExp,Map,Set,JSON,Intl,' +
     'require' // for Webpack/Browserify
   )
-
+//解析不到的 属性或方法，给出警告
   const warnNonPresent = (target, key) => {
     warn(
       `Property or method "${key}" is not defined on the instance but ` +
@@ -23,7 +26,7 @@ if (process.env.NODE_ENV !== 'production') {
       target
     )
   }
-
+//属性前缀为 $ 或 _ 时警告
   const warnReservedPrefix = (target, key) => {
     warn(
       `Property "${key}" must be accessed with "$data.${key}" because ` +
@@ -37,7 +40,7 @@ if (process.env.NODE_ENV !== 'production') {
   const hasProxy =
     typeof Proxy !== 'undefined' && isNative(Proxy)
 
-  if (hasProxy) {
+  if (hasProxy) {//避免重写这些内置的按键修饰符
     const isBuiltInModifier = makeMap('stop,prevent,self,ctrl,shift,alt,meta,exact')
     config.keyCodes = new Proxy(config.keyCodes, {
       set (target, key, value) {
@@ -51,7 +54,7 @@ if (process.env.NODE_ENV !== 'production') {
       }
     })
   }
-
+// 拦截 key in 操作
   const hasHandler = {
     has (target, key) {
       const has = key in target
@@ -64,7 +67,7 @@ if (process.env.NODE_ENV !== 'production') {
       return has || !isAllowed
     }
   }
-
+// 拦截 get操作
   const getHandler = {
     get (target, key) {
       if (typeof key === 'string' && !(key in target)) {
@@ -74,10 +77,11 @@ if (process.env.NODE_ENV !== 'production') {
       return target[key]
     }
   }
-
+// _renderProxy 用于render函数的调用阶段 ，拦截 get或 has操作
   initProxy = function initProxy (vm) {
     if (hasProxy) {
       // determine which proxy handler to use
+      // 确定要使用哪个代理程序
       const options = vm.$options
       const handlers = options.render && options.render._withStripped
         ? getHandler

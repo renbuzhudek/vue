@@ -193,7 +193,7 @@ export default class Watcher {
     } else if (this.sync) {//如果是同步更新，直接调用 run
       this.run()
     } else {
-      queueWatcher(this) //异步更新试图，里面还是会调用run方法
+      queueWatcher(this) //异步更新视图，里面还是会调用run方法
     }
   }
 

@@ -211,7 +211,7 @@ export function mountComponent (
    * new Watcher时vm._watcher会被赋值到这个watcher实例,以便手动调用 观察者的更新方法
    */
   new Watcher(vm, updateComponent, noop, {
-    before () {
+    before () {//这个 before 选项，用于 renderWatcher 更新时调用  beforeUpdate 钩子
       if (vm._isMounted && !vm._isDestroyed) {
         callHook(vm, 'beforeUpdate')
       }
