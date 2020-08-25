@@ -36,7 +36,7 @@ import {
 //  patch期间在组件 vnode上调用的内联钩子，进行实例化，挂载，销毁 等操作
 //这里的参数 vnode  都是 组件占位vnode  
 const componentVNodeHooks = {
-  //初始化组件实例，并挂载 
+  //初始化组件实例，并挂载 ,参数是组件占位节点
   init (vnode: VNodeWithData, hydrating: boolean): ?boolean {
     if (
       vnode.componentInstance && //这个占位节点上存在组件实例
@@ -50,8 +50,8 @@ const componentVNodeHooks = {
     } else {
       //创建子组件实例，并挂到 componentInstance 字段
       const child = vnode.componentInstance = createComponentInstanceForVnode(
-        vnode,
-        activeInstance
+        vnode,//占位节点，用于创建实例
+        activeInstance//活动实例，也是即将创建的实例的父组件实例 $parent
       )
       //调用vm.$mount方法触发子组件的生命周期,创建流程，子组件的mounted事件会在父组件完成patch的最后一行触发
       child.$mount(hydrating ? vnode.elm : undefined, hydrating)
@@ -226,13 +226,13 @@ export function createComponentInstanceForVnode (
   parent: any, // activeInstance in lifecycle state
 ): Component {
   const options: InternalComponentOptions = {
-    _isComponent: true,
-    _parentVnode: vnode,
-    parent
+    _isComponent: true,//标识是组件
+    _parentVnode: vnode,//占位节点
+    parent//父组件实例
   }
-  // check inline-template render functions
+  // check inline-template render functions,检查内联模板的渲染函数
   const inlineTemplate = vnode.data.inlineTemplate
-  if (isDef(inlineTemplate)) {
+  if (isDef(inlineTemplate)) {//如果存在内联模板，标识为静态渲染函数
     options.render = inlineTemplate.render
     options.staticRenderFns = inlineTemplate.staticRenderFns
   }

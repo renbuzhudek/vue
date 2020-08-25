@@ -143,7 +143,7 @@ export function createPatchFunction (backend) {
     }
 
     vnode.isRootInsert = !nested // for transition enter check
-    // 如果是组件，退出函数
+    // 这里vnode有可能是组件占位节点，也有可能是正常节点，只有是组件占位节点，会创建组件实例并返回，才会退出函数
     if (createComponent(vnode, insertedVnodeQueue, parentElm, refElm)) {
       return
     }
@@ -212,9 +212,10 @@ export function createPatchFunction (backend) {
 // 创建组件实例：并把vm._vnode.elm挂载到parentElm父元素上
   function createComponent (vnode, insertedVnodeQueue, parentElm, refElm) {
     let i = vnode.data
-    if (isDef(i)) {
+    if (isDef(i)) {//如果定义了 i
+      // 如果  vnode.componentInstance 属性存在 并且  keepAlive ，标识为 激活的
       const isReactivated = isDef(vnode.componentInstance) && i.keepAlive
-      if (isDef(i = i.hook) && isDef(i = i.init)) {
+      if (isDef(i = i.hook) && isDef(i = i.init)) {//如果定义了 hook,并且定义了init钩子，也就说明是组件占位节点（组件占位节点才会安装init等内部钩子）。调用init钩子创建组件实例
         /**这里调用了componentVNodeHooks 的init钩子
          * src\core\vdom\create-component.js 38行
          */
@@ -225,7 +226,7 @@ export function createPatchFunction (backend) {
       // component also has set the placeholder vnode's elm.
       // in that case we can just return the element and be done.
 
-      //调用init钩子之后，如果vnode是子组件
+      //调用init钩子之后，如果vnode是子组件占位节点
       //它应该创建一个子实例并挂载它
       //在这种情况下，我们可以返回元素并完成。
       //TODO:
@@ -281,7 +282,7 @@ export function createPatchFunction (backend) {
     // a reactivated keep-alive component doesn't insert itself
     insert(parentElm, vnode.elm, refElm)
   }
-
+// 真实DOM挂载
   function insert (parent, elm, ref) {
     if (isDef(parent)) {
       if (isDef(ref)) {

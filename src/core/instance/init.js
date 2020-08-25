@@ -75,7 +75,7 @@ export function initMixin (Vue: Class<Component>) {
     }
   }
 }
-// 初始化内部组件
+// 初始化内部组件，设置   vm.$options
 export function initInternalComponent (vm: Component, options: InternalComponentOptions) {
   const opts = vm.$options = Object.create(vm.constructor.options)
   // doing this because it's faster than dynamic enumeration.

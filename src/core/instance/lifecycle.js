@@ -18,8 +18,8 @@ import {
   invokeWithErrorHandling
 } from '../util/index'
 
-export let activeInstance: any = null
-export let isUpdatingChildComponent: boolean = false
+export let activeInstance: any = null // 缓存当前活动的实例
+export let isUpdatingChildComponent: boolean = false  // flag,标志是否正在更新子组件
 
 export function setActiveInstance(vm: Component) {
   const prevActiveInstance = activeInstance
@@ -61,7 +61,7 @@ export function lifecycleMixin (Vue: Class<Component>) {
     const vm: Component = this
     const prevEl = vm.$el//之前的DOM
     const prevVnode = vm._vnode//之前的vnode
-    const restoreActiveInstance = setActiveInstance(vm)
+    const restoreActiveInstance = setActiveInstance(vm)//设置当前实例为活动实例
     vm._vnode = vnode//_vnode属性指向新的vnode
     // Vue.prototype.__patch__ is injected in entry points
     // based on the rendering backend used.
@@ -75,7 +75,7 @@ export function lifecycleMixin (Vue: Class<Component>) {
       // updates 否则是更新DOM ,传入oldVnode 和newVnode
       vm.$el = vm.__patch__(prevVnode, vnode)
     }
-    restoreActiveInstance()
+    restoreActiveInstance()//还原活动实例为上一个活动实例
     // update __vue__ reference 删除旧的DOM节点对组件实例的引用
     if (prevEl) {
       prevEl.__vue__ = null
@@ -229,7 +229,7 @@ export function mountComponent (
   }
   return vm
 }
-
+// 更新子组件
 export function updateChildComponent (
   vm: Component,
   propsData: ?Object,
