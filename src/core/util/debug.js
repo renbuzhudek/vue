@@ -54,17 +54,17 @@ if (process.env.NODE_ENV !== 'production') {
       (file && includeFile !== false ? ` at ${file}` : '')
     )
   }
-
+//  重复str n次
   const repeat = (str, n) => {
     let res = ''
     while (n) {
       if (n % 2 === 1) res += str
       if (n > 1) str += str
-      n >>= 1
+      n >>= 1//位运算，符号位右移1位并赋值给n ，例 35>>1 = 17；
     }
     return res
   }
-
+// 生成组件堆栈信息
   generateComponentTrace = vm => {
     if (vm._isVue && vm.$parent) {
       const tree = []

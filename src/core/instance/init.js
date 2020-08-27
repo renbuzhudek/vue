@@ -103,13 +103,13 @@ export function resolveConstructorOptions (Ctor: Class<Component>) {
     if (superOptions !== cachedSuperOptions) {//如果2个不是同一个组件选项，说明超类的组件选项改变了。需要拿到新的
       // super option changed,
       // need to resolve new options.
-      Ctor.superOptions = superOptions
+      Ctor.superOptions = superOptions //在子类上更新超类的组件选项
       // check if there are any late-modified/attached options (#4976) 检查是否有任何最新修改/附加的选项
       const modifiedOptions = resolveModifiedOptions(Ctor)
       // update base extend options
-      if (modifiedOptions) {
+      if (modifiedOptions) {//合并需要继承的组件选项
         extend(Ctor.extendOptions, modifiedOptions)
-      }
+      }//最后，合并组件选项，
       options = Ctor.options = mergeOptions(superOptions, Ctor.extendOptions)
       if (options.name) {
         options.components[options.name] = Ctor//构造函数缓存在组件选项上面
