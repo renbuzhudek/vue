@@ -74,14 +74,14 @@ export function eventsMixin (Vue: Class<Component>) {
       vm.$off(event, on)
       fn.apply(vm, arguments)
     }
-    on.fn = fn
+    on.fn = fn//on.fn这一步，把传入的函数挂到新创建的函数对象上，是为了可以 vm.$off卸载监听；对应 cb.fn === fn
     vm.$on(event, on)
     return vm
   }
 
   Vue.prototype.$off = function (event?: string | Array<string>, fn?: Function): Component {
     const vm: Component = this
-    // all
+    // all 如果没有传入参数，解除全部监听的事件
     if (!arguments.length) {
       vm._events = Object.create(null)
       return vm

@@ -104,7 +104,7 @@ export function resolveConstructorOptions (Ctor: Class<Component>) {
       // super option changed,
       // need to resolve new options.
       Ctor.superOptions = superOptions
-      // check if there are any late-modified/attached options (#4976)
+      // check if there are any late-modified/attached options (#4976) 检查是否有任何最新修改/附加的选项
       const modifiedOptions = resolveModifiedOptions(Ctor)
       // update base extend options
       if (modifiedOptions) {
@@ -112,7 +112,7 @@ export function resolveConstructorOptions (Ctor: Class<Component>) {
       }
       options = Ctor.options = mergeOptions(superOptions, Ctor.extendOptions)
       if (options.name) {
-        options.components[options.name] = Ctor
+        options.components[options.name] = Ctor//构造函数缓存在组件选项上面
       }
     }
   }

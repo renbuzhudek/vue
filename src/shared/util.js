@@ -46,19 +46,19 @@ export function isObject (obj: mixed): boolean %checks {
  * Get the raw type string of a value, e.g., [object Object].
  */
 const _toString = Object.prototype.toString
-
+// 原始类型
 export function toRawType (value: any): string {
   return _toString.call(value).slice(8, -1)
 }
 
 /**
  * Strict object type check. Only returns true
- * for plain JavaScript objects.
+ * for plain JavaScript objects. 是朴素对象
  */
 export function isPlainObject (obj: any): boolean {
   return _toString.call(obj) === '[object Object]'
 }
-
+// 是正则表达式对象
 export function isRegExp (v: any): boolean {
   return _toString.call(v) === '[object RegExp]'
 }
@@ -70,7 +70,7 @@ export function isValidArrayIndex (val: any): boolean {
   const n = parseFloat(String(val))
   return n >= 0 && Math.floor(n) === n && isFinite(val)
 }
-
+// 检查是promise实例对象
 export function isPromise (val: any): boolean {
   return (
     isDef(val) &&
@@ -81,6 +81,7 @@ export function isPromise (val: any): boolean {
 
 /**
  * Convert a value to a string that is actually rendered.
+ * 将 val 转换为实际呈现的字符串
  */
 export function toString (val: any): string {
   return val == null
@@ -93,6 +94,7 @@ export function toString (val: any): string {
 /**
  * Convert an input value to a number for persistence.
  * If the conversion fails, return original string.
+ * 将输入值转换为数字，如果转换失败，则返回原字符串。
  */
 export function toNumber (val: string): number | string {
   const n = parseFloat(val)
@@ -154,6 +156,8 @@ export function hasOwn (obj: Object | Array<*>, key: string): boolean {
 
 /**
  * Create a cached version of a pure function.
+ * 创建纯函数的缓存版本
+ * 传入一个需要缓存返回值的函数，每次调用纯函数，如果缓存对象有值，直接返回，否则进行缓存
  */
 export function cached<F: Function> (fn: F): F {
   const cache = Object.create(null)
@@ -165,6 +169,7 @@ export function cached<F: Function> (fn: F): F {
 
 /**
  * Camelize a hyphen-delimited string.
+ * 用连字符分割的字符串首字母转大写， 例:  'v-pop-up' => 'vPopUp'
  */
 const camelizeRE = /-(\w)/g
 export const camelize = cached((str: string): string => {
@@ -173,6 +178,7 @@ export const camelize = cached((str: string): string => {
 
 /**
  * Capitalize a string.
+ * 首字母转大写
  */
 export const capitalize = cached((str: string): string => {
   return str.charAt(0).toUpperCase() + str.slice(1)
@@ -180,8 +186,9 @@ export const capitalize = cached((str: string): string => {
 
 /**
  * Hyphenate a camelCase string.
+ * 大写字母转连字符小写  例:  'vPopUp' => 'v-pop-up'
  */
-const hyphenateRE = /\B([A-Z])/g
+const hyphenateRE = /\B([A-Z])/g //匹配非单词边界的大写字母
 export const hyphenate = cached((str: string): string => {
   return str.replace(hyphenateRE, '-$1').toLowerCase()
 })
@@ -212,13 +219,14 @@ function polyfillBind (fn: Function, ctx: Object): Function {
 function nativeBind (fn: Function, ctx: Object): Function {
   return fn.bind(ctx)
 }
-
+//  bind 方法
 export const bind = Function.prototype.bind
   ? nativeBind
   : polyfillBind
 
 /**
  * Convert an Array-like object to a real Array.
+ * 类数组转成真数组
  */
 export function toArray (list: any, start?: number): Array<any> {
   start = start || 0
@@ -243,6 +251,7 @@ export function extend (to: Object, _from: ?Object): Object {
 
 /**
  * Merge an Array of Objects into a single Object.
+ * 合并一个数组对象到一个单独的对象
  */
 export function toObject (arr: Array<any>): Object {
   const res = {}
@@ -279,6 +288,7 @@ export const identity = (_: any) => _
 
 /**
  * Generate a string containing static keys from compiler modules.
+ * 从编译器模块生成包含静态键的字符串
  */
 export function genStaticKeys (modules: Array<ModuleOptions>): string {
   return modules.reduce((keys, m) => {
@@ -289,6 +299,7 @@ export function genStaticKeys (modules: Array<ModuleOptions>): string {
 /**
  * Check if two values are loosely equal - that is,
  * if they are plain objects, do they have the same shape?
+ * 检查两个值得形状是否相等 looseEqual([{a:1}],[{a:1}])===true
  */
 export function looseEqual (a: any, b: any): boolean {
   if (a === b) return true
@@ -329,6 +340,7 @@ export function looseEqual (a: any, b: any): boolean {
  * Return the first index at which a loosely equal value can be
  * found in the array (if value is a plain object, the array must
  * contain an object of the same shape), or -1 if it is not present.
+ * 在 arr中找出跟val形状相同的成员，返回index
  */
 export function looseIndexOf (arr: Array<mixed>, val: mixed): number {
   for (let i = 0; i < arr.length; i++) {
