@@ -5,8 +5,8 @@ import { noop } from 'shared/util'
 
 export let warn = noop
 export let tip = noop
-export let generateComponentTrace = (noop: any) // work around flow check
-export let formatComponentName = (noop: any)
+export let generateComponentTrace = (noop: any) // work around flow check 生成组件堆栈
+export let formatComponentName = (noop: any)  //格式化组件名
 
 if (process.env.NODE_ENV !== 'production') {
   const hasConsole = typeof console !== 'undefined'
@@ -14,7 +14,7 @@ if (process.env.NODE_ENV !== 'production') {
   const classify = str => str
     .replace(classifyRE, c => c.toUpperCase())
     .replace(/[-_]/g, '')
-
+// 打印报错，堆栈信息
   warn = (msg, vm) => {
     const trace = vm ? generateComponentTrace(vm) : ''
 
@@ -24,7 +24,7 @@ if (process.env.NODE_ENV !== 'production') {
       console.error(`[Vue warn]: ${msg}${trace}`)
     }
   }
-
+// 打印警告,堆栈信息
   tip = (msg, vm) => {
     if (hasConsole && (!config.silent)) {
       console.warn(`[Vue tip]: ${msg}` + (
@@ -32,7 +32,7 @@ if (process.env.NODE_ENV !== 'production') {
       ))
     }
   }
-
+// 格式化组件名
   formatComponentName = (vm, includeFile) => {
     if (vm.$root === vm) {
       return '<Root>'
@@ -64,7 +64,7 @@ if (process.env.NODE_ENV !== 'production') {
     }
     return res
   }
-// 生成组件堆栈信息
+// 生成组件堆栈信息,办法就是 while循环 vm.$parent，格式化组件名，打印
   generateComponentTrace = vm => {
     if (vm._isVue && vm.$parent) {
       const tree = []
@@ -72,7 +72,7 @@ if (process.env.NODE_ENV !== 'production') {
       while (vm) {
         if (tree.length > 0) {
           const last = tree[tree.length - 1]
-          if (last.constructor === vm.constructor) {
+          if (last.constructor === vm.constructor) {//处理递归组件
             currentRecursiveSequence++
             vm = vm.$parent
             continue

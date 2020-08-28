@@ -32,7 +32,7 @@ export function handleError (err: Error, vm: any, info: string) {
     popTarget()
   }
 }
-
+// 执行回调函数，并带上错误处理
 export function invokeWithErrorHandling (
   handler: Function,
   context: any,
