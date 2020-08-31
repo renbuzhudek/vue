@@ -1,7 +1,7 @@
 import { inBrowser } from './env'
 
-export let mark
-export let measure
+export let mark//标记精确的时间戳
+export let measure//精确测量两个标记时间戳之间的时长
 
 if (process.env.NODE_ENV !== 'production') {
   const perf = inBrowser && window.performance
