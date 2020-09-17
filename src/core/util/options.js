@@ -26,6 +26,7 @@ import {
  * how to merge a parent option value and a child option
  * value into the final value.
  */
+// Vue默认提供的选项合并策略，也可以通过暴露的config API自定义合并策略
 const strats = config.optionMergeStrategies
 
 /**
@@ -45,6 +46,8 @@ if (process.env.NODE_ENV !== 'production') {
 
 /**
  * Helper that recursively merges two data objects together.
+ * 递归地将两个数据对象合并在一起的帮助函数
+ * form对象上的属性，to对象没有的话就合并到to对象上
  */
 function mergeData (to: Object, from: ?Object): Object {
   if (!from) return to
@@ -57,11 +60,11 @@ function mergeData (to: Object, from: ?Object): Object {
   for (let i = 0; i < keys.length; i++) {
     key = keys[i]
     // in case the object is already observed...
-    if (key === '__ob__') continue
+    if (key === '__ob__') continue// key === '__ob__' 跳到下一次循环
     toVal = to[key]
     fromVal = from[key]
-    if (!hasOwn(to, key)) {
-      set(to, key, fromVal)
+    if (!hasOwn(to, key)) {// 如果 to 不包含 key属性
+      set(to, key, fromVal)//设置成为响应式属性
     } else if (
       toVal !== fromVal &&
       isPlainObject(toVal) &&
@@ -74,7 +77,7 @@ function mergeData (to: Object, from: ?Object): Object {
 }
 
 /**
- * Data
+ * Data  data选项的合并
  */
 export function mergeDataOrFn (
   parentVal: any,
@@ -117,7 +120,7 @@ export function mergeDataOrFn (
     }
   }
 }
-
+//  data选项的合并
 strats.data = function (
   parentVal: any,
   childVal: any,
@@ -142,6 +145,7 @@ strats.data = function (
 
 /**
  * Hooks and props are merged as arrays.
+ * 钩子合并，转成数组
  */
 function mergeHook (
   parentVal: ?Array<Function>,
@@ -194,7 +198,7 @@ function mergeAssets (
     return res
   }
 }
-
+//  component | directive | filter 合并， extend
 ASSET_TYPES.forEach(function (type) {
   strats[type + 's'] = mergeAssets
 })
@@ -260,6 +264,7 @@ strats.provide = mergeDataOrFn
 
 /**
  * Default strategy.
+ * 默认策略，如果childVal存在就返回childVal,否则返回parentVal
  */
 const defaultStrat = function (parentVal: any, childVal: any): any {
   return childVal === undefined
