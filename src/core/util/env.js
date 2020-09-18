@@ -17,10 +17,10 @@ export const isChrome = UA && /chrome\/\d+/.test(UA) && !isEdge
 export const isPhantomJS = UA && /phantomjs/.test(UA)
 export const isFF = UA && UA.match(/firefox\/(\d+)/)
 
-// Firefox has a "watch" function on Object.prototype...
+// Firefox has a "watch" function on Object.prototype...  火狐浏览器有一个原生的watch函数
 export const nativeWatch = ({}).watch
 
-export let supportsPassive = false
+export let supportsPassive = false //检查浏览器是否支持 addEventListener第三个参数为对象以支持 passive 属性，作用是优化浏览器页面滚动性能
 if (inBrowser) {
   try {
     const opts = {}
@@ -35,7 +35,7 @@ if (inBrowser) {
 }
 
 // this needs to be lazy-evaled because vue may be required before
-// vue-server-renderer can set VUE_ENV
+// vue-server-renderer can set VUE_ENV 是否是服务端渲染
 let _isServer
 export const isServerRendering = () => {
   if (_isServer === undefined) {
@@ -51,14 +51,14 @@ export const isServerRendering = () => {
   return _isServer
 }
 
-// detect devtools
+// detect devtools 发现devtools插件
 export const devtools = inBrowser && window.__VUE_DEVTOOLS_GLOBAL_HOOK__
 
-/* istanbul ignore next */
+/* istanbul ignore next */ //是否是原生代码
 export function isNative (Ctor: any): boolean {
   return typeof Ctor === 'function' && /native code/.test(Ctor.toString())
 }
-
+// 是否拥有原生 Symbol
 export const hasSymbol =
   typeof Symbol !== 'undefined' && isNative(Symbol) &&
   typeof Reflect !== 'undefined' && isNative(Reflect.ownKeys)

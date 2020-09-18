@@ -162,7 +162,7 @@ function mergeHook (
     ? dedupeHooks(res)
     : res
 }
-
+// 钩子数组消除重复
 function dedupeHooks (hooks) {
   const res = []
   for (let i = 0; i < hooks.length; i++) {
@@ -172,7 +172,7 @@ function dedupeHooks (hooks) {
   }
   return res
 }
-
+// 为生命周期钩子注册选项合并的默认策略
 LIFECYCLE_HOOKS.forEach(hook => {
   strats[hook] = mergeHook
 })
@@ -183,6 +183,7 @@ LIFECYCLE_HOOKS.forEach(hook => {
  * When a vm is present (instance creation), we need to do
  * a three-way merge between constructor options, instance
  * options and parent options.
+ * 资源合并，策略是 childVal 覆盖 parentVal 上的属性 
  */
 function mergeAssets (
   parentVal: ?Object,
@@ -199,6 +200,7 @@ function mergeAssets (
   }
 }
 //  component | directive | filter 合并， extend
+// 为component ， directive ， filter 注册选项合并的默认策略
 ASSET_TYPES.forEach(function (type) {
   strats[type + 's'] = mergeAssets
 })
@@ -208,6 +210,7 @@ ASSET_TYPES.forEach(function (type) {
  *
  * Watchers hashes should not overwrite one
  * another, so we merge them as arrays.
+ * watch选项合并策略不应该是 child覆盖parent,所以合并成数组
  */
 strats.watch = function (
   parentVal: ?Object,
@@ -242,6 +245,7 @@ strats.watch = function (
 /**
  * Other object hashes.
  */
+// props methods inject computed 这几个选项的合并策略，就是简单的 child 覆盖 parent
 strats.props =
 strats.methods =
 strats.inject =
@@ -274,6 +278,7 @@ const defaultStrat = function (parentVal: any, childVal: any): any {
 
 /**
  * Validate component names
+ * 校验组件名是否有效
  */
 function checkComponents (options: Object) {
   for (const key in options.components) {
@@ -281,13 +286,13 @@ function checkComponents (options: Object) {
   }
 }
 
-export function validateComponentName (name: string) {
+export function validateComponentName (name: string) {//非法字符
   if (!new RegExp(`^[a-zA-Z][\\-\\.0-9_${unicodeRegExp.source}]*$`).test(name)) {
     warn(
       'Invalid component name: "' + name + '". Component names ' +
       'should conform to valid custom element name in html5 specification.'
     )
-  }
+  }//使用了内置 tag名， 报错
   if (isBuiltInTag(name) || config.isReservedTag(name)) {
     warn(
       'Do not use built-in or reserved HTML elements as component ' +
@@ -299,19 +304,20 @@ export function validateComponentName (name: string) {
 /**
  * Ensure all props option syntax are normalized into the
  * Object-based format.
+ * 规范化 props为基于对象的格式
  */
 function normalizeProps (options: Object, vm: ?Component) {
   const props = options.props
   if (!props) return
   const res = {}
   let i, val, name
-  if (Array.isArray(props)) {
+  if (Array.isArray(props)) {//如果 props是数组，那么成员应该是字符串，否则报错提示
     i = props.length
     while (i--) {
       val = props[i]
       if (typeof val === 'string') {
-        name = camelize(val)
-        res[name] = { type: null }
+        name = camelize(val)// 连字符转大写
+        res[name] = { type: null }//创建规范化后的属性,type是该prop的类型， props:{[name]:{type:null}}
       } else if (process.env.NODE_ENV !== 'production') {
         warn('props must be strings when using array syntax.')
       }
@@ -319,7 +325,7 @@ function normalizeProps (options: Object, vm: ?Component) {
   } else if (isPlainObject(props)) {
     for (const key in props) {
       val = props[key]
-      name = camelize(key)
+      name = camelize(key)//正常情况val会是一个对象，否则设置为该prop的 type，也就是它的类型
       res[name] = isPlainObject(val)
         ? val
         : { type: val }
@@ -364,6 +370,7 @@ function normalizeInject (options: Object, vm: ?Component) {
 
 /**
  * Normalize raw function directives into object format.
+ * 规范化指令格式为基于对象
  */
 function normalizeDirectives (options: Object) {
   const dirs = options.directives
@@ -376,7 +383,7 @@ function normalizeDirectives (options: Object) {
     }
   }
 }
-
+// 如果 value不是普通对象报错
 function assertObjectType (name: string, value: any, vm: ?Component) {
   if (!isPlainObject(value)) {
     warn(
@@ -390,6 +397,7 @@ function assertObjectType (name: string, value: any, vm: ?Component) {
 /**
  * Merge two option objects into a new one.
  * Core utility used in both instantiation and inheritance.
+ * 将两个选项对象合并为一个新对象,用于实例化和继承的核心实用程序
  */
 export function mergeOptions (
   parent: Object,
@@ -397,13 +405,13 @@ export function mergeOptions (
   vm?: Component
 ): Object {
   if (process.env.NODE_ENV !== 'production') {
-    checkComponents(child)
+    checkComponents(child)//检查组件名
   }
 
   if (typeof child === 'function') {
     child = child.options
   }
-
+// 规范化 props inject directive
   normalizeProps(child, vm)
   normalizeInject(child, vm)
   normalizeDirectives(child)
@@ -412,6 +420,9 @@ export function mergeOptions (
   // but only if it is a raw options object that isn't
   // the result of another mergeOptions call.
   // Only merged options has the _base property.
+  // 在子options上应用 extends 和 mixins ,前提他是一个原始的选项对象，而并不是一个mergeOptions调用的结果。
+  // 只有合并过的选项上有_base属性,如vm.$options.__proto__._base，而原始选项对象没有
+  console.log(arguments);
   if (!child._base) {
     if (child.extends) {
       parent = mergeOptions(parent, child.extends, vm)
@@ -422,7 +433,7 @@ export function mergeOptions (
       }
     }
   }
-
+// 选项合并到一个新对象上
   const options = {}
   let key
   for (key in parent) {
@@ -444,6 +455,7 @@ export function mergeOptions (
  * Resolve an asset.
  * This function is used because child instances need access
  * to assets defined in its ancestor chain.
+ * 解析资源，因为子实例需要访问在祖先组件上定义的资源
  */
 export function resolveAsset (
   options: Object,
