@@ -140,10 +140,11 @@ export function createComponent (
     asyncFactory = Ctor
     // 获取异步组件的构造函数
     Ctor = resolveAsyncComponent(asyncFactory, baseCtor)
-    if (Ctor === undefined) {
+    if (Ctor === undefined) {//如果拿不到异步组件的构造函数
       // return a placeholder node for async component, which is rendered
       // as a comment node but preserves all the raw information for the node.
       // the information will be used for async server-rendering and hydration.
+      // 返回异步组件的占位符节点，作为注释节点呈现
       return createAsyncPlaceholder(
         asyncFactory,
         data,

@@ -79,12 +79,12 @@ export default {
       pruneCache(this, name => !matches(val, name))
     })
   },
-
+// 默认只渲染一个直属子节点
   render () {
     const slot = this.$slots.default  //default插槽，值是一个数组，成员是 vnode
-    const vnode: VNode = getFirstComponentChild(slot)   //拿到插槽的第一个是组件的 vnode
+    const vnode: VNode = getFirstComponentChild(slot)   //拿到插槽的第一个直属组件占位节点
     const componentOptions: ?VNodeComponentOptions = vnode && vnode.componentOptions
-    if (componentOptions) {
+    if (componentOptions) {//如果组件选项存在
       // check pattern
       const name: ?string = getComponentName(componentOptions)
       const { include, exclude } = this
@@ -125,7 +125,7 @@ export default {
         // 组件标记为缓存组建
       vnode.data.keepAlive = true
     }
-    // 返回vnode
+    // 返回第一个直属组件节点或 插槽的第一个子节点vnode
     return vnode || (slot && slot[0])
   }
 }
