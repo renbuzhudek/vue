@@ -422,7 +422,7 @@ export function mergeOptions (
   // Only merged options has the _base property.
   // 在子options上应用 extends 和 mixins ,前提他是一个原始的选项对象，而并不是一个mergeOptions调用的结果。
   // 只有合并过的选项上有_base属性,如vm.$options.__proto__._base，而原始选项对象没有
-  console.log(arguments);
+  // console.log(arguments);
   if (!child._base) {
     if (child.extends) {
       parent = mergeOptions(parent, child.extends, vm)
