@@ -182,7 +182,13 @@ function genIfConditions (
         : genElement(el, state)
   }
 }
-
+/**
+例如   v-for="(model,i) in model.children"
+exp = 'model.children'
+alias = 'model'
+iterator1 = i
+iterator2 不清楚
+*/
 export function genFor (
   el: any,
   state: CodegenState,
@@ -193,7 +199,7 @@ export function genFor (
   const alias = el.alias
   const iterator1 = el.iterator1 ? `,${el.iterator1}` : ''
   const iterator2 = el.iterator2 ? `,${el.iterator2}` : ''
-
+// 如果没设置 key ， 打印警告
   if (process.env.NODE_ENV !== 'production' &&
     state.maybeComponent(el) &&
     el.tag !== 'slot' &&
@@ -209,7 +215,7 @@ export function genFor (
     )
   }
 
-  el.forProcessed = true // avoid recursion
+  el.forProcessed = true // avoid recursion 避免递归
   return `${altHelper || '_l'}((${exp}),` +
     `function(${alias}${iterator1}${iterator2}){` +
       `return ${(altGen || genElement)(el, state)}` +

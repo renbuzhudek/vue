@@ -1,11 +1,19 @@
 /* @flow */
-
+//  拉取作用域插槽  ,返回的对象形如：
+/**
+ * {
+ * $key: xxxxx,
+ * $stable: true,
+ * default:f(scope){.....}  default作用域插槽函数
+ *  } 
+ * 
+ */
 export function resolveScopedSlots (
   fns: ScopedSlotsData, // see flow/vnode
-  res?: Object,
+  res?: Object,//返回的对象
   // the following are added in 2.6
-  hasDynamicKeys?: boolean,
-  contentHashKey?: number
+  hasDynamicKeys?: boolean,//是否有动态key
+  contentHashKey?: number // 内容哈希key
 ): { [key: string]: Function, $stable: boolean } {
   res = res || { $stable: !hasDynamicKeys }
   for (let i = 0; i < fns.length; i++) {
@@ -23,5 +31,6 @@ export function resolveScopedSlots (
   if (contentHashKey) {
     (res: any).$key = contentHashKey
   }
+  console.log(res);
   return res
 }

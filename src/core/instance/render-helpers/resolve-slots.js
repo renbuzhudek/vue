@@ -4,10 +4,12 @@ import type VNode from 'core/vdom/vnode'
 
 /**
  * Runtime helper for resolving raw children VNodes into a slot object.
+ * 运行时帮助函数，把子vnode节点转换成一个 slot对象，如：{defalut:[VNode]}
+ * 遍历 children，如果子vnode的data.slot属性存在，设置为slots对象的属性；
  */
 export function resolveSlots (
-  children: ?Array<VNode>,
-  context: ?Component
+  children: ?Array<VNode>,//一个元素的子元素数组
+  context: ?Component//上下文实例
 ): { [key: string]: Array<VNode> } {
   if (!children || !children.length) {
     return {}
@@ -44,7 +46,7 @@ export function resolveSlots (
   }
   return slots
 }
-
+// 是否白名单
 function isWhitespace (node: VNode): boolean {
   return (node.isComment && !node.asyncFactory) || node.text === ' '
 }
