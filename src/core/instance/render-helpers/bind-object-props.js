@@ -13,6 +13,7 @@ import {
 
 /**
  * Runtime helper for merging v-bind="object" into a VNode's data.
+ * 运行时帮助函数， 把 v-bind="object" 指令的值，解构属性 合并到 vnode节点的data属性上
  */
 export function bindObjectProps (
   data: any,
@@ -40,8 +41,8 @@ export function bindObjectProps (
         ) {
           hash = data
         } else {
-          const type = data.attrs && data.attrs.type
-          hash = asProp || config.mustUseProp(tag, type, key)
+          const type = data.attrs && data.attrs.type//获取type属性值，一般就是表单元素和button有type属性
+          hash = asProp || config.mustUseProp(tag, type, key)//是否作为 props属性来绑定
             ? data.domProps || (data.domProps = {})
             : data.attrs || (data.attrs = {})
         }
@@ -49,7 +50,7 @@ export function bindObjectProps (
         const hyphenatedKey = hyphenate(key)
         if (!(camelizedKey in hash) && !(hyphenatedKey in hash)) {
           hash[key] = value[key]
-
+//  sync修饰符，作为语法糖添加一个事件监听
           if (isSync) {
             const on = data.on || (data.on = {})
             on[`update:${key}`] = function ($event) {
