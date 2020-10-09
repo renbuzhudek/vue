@@ -2,7 +2,7 @@
 
 export default class VNode {
   tag: string | void;//标签名
-  data: VNodeData | void;//虚拟dom的数据对象
+  data: VNodeData | void;//虚拟dom的数据对象，对应 h()方法创建vnode的第二个参数 {on:{},class:{},style:{},props:{},...}
   children: ?Array<VNode>;//子节点
   text: string | void;//文本节点的内容
   elm: Node | void;//当前节点对应的真实DOM
