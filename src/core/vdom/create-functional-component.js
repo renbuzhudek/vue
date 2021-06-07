@@ -88,9 +88,9 @@ export function FunctionalRenderContext (
     this._c = (a, b, c, d) => createElement(contextVm, a, b, c, d, needNormalization)
   }
 }
-
+// 安装渲染函数的帮助函数到原型对象上
 installRenderHelpers(FunctionalRenderContext.prototype)
-
+// 创建函数式组件
 export function createFunctionalComponent (
   Ctor: Class<Component>,
   propsData: ?Object,
@@ -109,15 +109,15 @@ export function createFunctionalComponent (
     if (isDef(data.attrs)) mergeProps(props, data.attrs)
     if (isDef(data.props)) mergeProps(props, data.props)
   }
-
+// 实例化函数式渲染上下文 , 这里不会去实例化构造函数，只是设置必要的属性，和调用render函数
   const renderContext = new FunctionalRenderContext(
-    data,
-    props,
-    children,
-    contextVm,
-    Ctor
+    data,//data
+    props,//props
+    children,//字节点
+    contextVm,//上下文实例，也就是$parent
+    Ctor//构造函数
   )
-
+// 调用render函数得到函数式组件的vnode
   const vnode = options.render.call(null, renderContext._c, renderContext)
 
   if (vnode instanceof VNode) {
@@ -131,7 +131,7 @@ export function createFunctionalComponent (
     return res
   }
 }
-
+// 克隆并标记函数式结果
 function cloneAndMarkFunctionalResult (vnode, data, contextVm, options, renderContext) {
   // #7817 clone node before setting fnContext, otherwise if the node is reused
   // (e.g. it was from a cached normal slot) the fnContext causes named slots

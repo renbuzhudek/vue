@@ -8,7 +8,7 @@ import {
   hyphenate,
   formatComponentName
 } from 'core/util/index'
-
+// 提取 props
 export function extractPropsFromVNodeData (
   data: VNodeData,
   Ctor: Class<Component>,

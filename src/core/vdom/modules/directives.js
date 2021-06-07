@@ -11,7 +11,7 @@ export default {
     updateDirectives(vnode, emptyNode)
   }
 }
-
+// 创建，更新，卸载指令都是调用这个方法
 function updateDirectives (oldVnode: VNodeWithData, vnode: VNodeWithData) {
   if (oldVnode.data.directives || vnode.data.directives) {
     _update(oldVnode, vnode)
@@ -80,7 +80,7 @@ function _update (oldVnode, vnode) {
 }
 
 const emptyModifiers = Object.create(null)
-
+// 序列化指令
 function normalizeDirectives (
   dirs: ?Array<VNodeDirective>,
   vm: Component

@@ -76,7 +76,8 @@ const componentVNodeHooks = {
       componentInstance._isMounted = true
       callHook(componentInstance, 'mounted')
     }
-    if (vnode.data.keepAlive) {
+    if (vnode.data.keepAlive) {//如果是keep-alive包裹的组件
+      // 上下文如果标记为已挂载（那么对于上下文这是一个patch update过程），组件实例推入activatedQueue数组，patch结束后统一调用activateChildComponent方法
       if (context._isMounted) {
         // vue-router#1212
         // During updates, a kept-alive component's child components may
@@ -84,7 +85,7 @@ const componentVNodeHooks = {
         // on incorrect children. Instead we push them into a queue which will
         // be processed after the whole patch process ended.
         queueActivatedComponent(componentInstance)
-      } else {
+      } else {//否则直接激活子组件activated钩子
         activateChildComponent(componentInstance, true /* direct */)
       }
     }
@@ -93,9 +94,9 @@ const componentVNodeHooks = {
   destroy (vnode: MountedComponentVNode) {
     const { componentInstance } = vnode
     if (!componentInstance._isDestroyed) {
-      if (!vnode.data.keepAlive) {
+      if (!vnode.data.keepAlive) {//非keep-alive包裹的组件直接调用销毁钩子
         componentInstance.$destroy()
-      } else {
+      } else {//否则调用 deactivated 钩子
         deactivateChildComponent(componentInstance, true /* direct */)
       }
     }
@@ -159,7 +160,7 @@ export function createComponent (
 
   // resolve constructor options in case global mixins are applied after
   // component constructor creation
-  //TODO:
+  //TODO:  解析构造函数上的组件选项，处理mixins这种情况
   resolveConstructorOptions(Ctor)
 
   // transform component v-model data into props & events

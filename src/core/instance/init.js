@@ -94,7 +94,7 @@ export function initInternalComponent (vm: Component, options: InternalComponent
     opts.staticRenderFns = options.staticRenderFns
   }
 }
-// 获取构造函数上的组件选项
+// 获取构造函数上的组件选项，并同步超类
 export function resolveConstructorOptions (Ctor: Class<Component>) {
   let options = Ctor.options
   if (Ctor.super) {//如果有超类，

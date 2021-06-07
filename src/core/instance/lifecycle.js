@@ -231,11 +231,11 @@ export function mountComponent (
 }
 // 更新子组件
 export function updateChildComponent (
-  vm: Component,
+  vm: Component,//组件实例 
   propsData: ?Object,
   listeners: ?Object,
-  parentVnode: MountedComponentVNode,
-  renderChildren: ?Array<VNode>
+  parentVnode: MountedComponentVNode,//实例的新的组件占位vnode
+  renderChildren: ?Array<VNode>// 新的子节点
 ) {
   if (process.env.NODE_ENV !== 'production') {
     isUpdatingChildComponent = true
@@ -247,8 +247,9 @@ export function updateChildComponent (
   // check if there are dynamic scopedSlots (hand-written or compiled but with
   // dynamic slot names). Static scoped slots compiled from template has the
   // "$stable" marker.
-  const newScopedSlots = parentVnode.data.scopedSlots
-  const oldScopedSlots = vm.$scopedSlots
+  // 模板编译的插槽具有"$stable" 标记 ，不带此标记的属于手工编写或编译的插槽
+  const newScopedSlots = parentVnode.data.scopedSlots //占位节点上的新插槽
+  const oldScopedSlots = vm.$scopedSlots//旧插槽
   const hasDynamicScopedSlot = !!(
     (newScopedSlots && !newScopedSlots.$stable) ||
     (oldScopedSlots !== emptyObject && !oldScopedSlots.$stable) ||
@@ -258,6 +259,7 @@ export function updateChildComponent (
   // Any static slot children from the parent may have changed during parent's
   // update. Dynamic scoped slots may also have changed. In such cases, a forced
   // update is necessary to ensure correctness.
+  // 如果有来自父级的静态子插槽,或者有动态插槽,需要强制更新
   const needsForceUpdate = !!(
     renderChildren ||               // has new static slots
     vm.$options._renderChildren ||  // has old static slots
@@ -265,7 +267,7 @@ export function updateChildComponent (
   )
 
   vm.$options._parentVnode = parentVnode
-  vm.$vnode = parentVnode // update vm's placeholder node without re-render
+  vm.$vnode = parentVnode // update vm's placeholder node without re-render 在没有重渲染的情况下更新占位节点
 
   if (vm._vnode) { // update child tree's parent
     vm._vnode.parent = parentVnode
@@ -293,13 +295,13 @@ export function updateChildComponent (
     vm.$options.propsData = propsData
   }
 
-  // update listeners
+  // update listeners 更新监听器
   listeners = listeners || emptyObject
   const oldListeners = vm.$options._parentListeners
   vm.$options._parentListeners = listeners
   updateComponentListeners(vm, listeners, oldListeners)
 
-  // resolve slots + force update if has children
+  // resolve slots + force update if has children  如果有子节点,解决插槽和强制更新
   if (needsForceUpdate) {
     vm.$slots = resolveSlots(renderChildren, parentVnode.context)
     vm.$forceUpdate()
@@ -320,12 +322,12 @@ function isInInactiveTree (vm) {
 export function activateChildComponent (vm: Component, direct?: boolean) {
   if (direct) {
     vm._directInactive = false
-    if (isInInactiveTree(vm)) {
+    if (isInInactiveTree(vm)) {// 如果祖先组件是无活动的，返回
       return
     }
   } else if (vm._directInactive) {
     return
-  }
+  }//如果组件无活动状态，修改为false，调用activated钩子并递归子组件
   if (vm._inactive || vm._inactive === null) {
     vm._inactive = false
     for (let i = 0; i < vm.$children.length; i++) {
