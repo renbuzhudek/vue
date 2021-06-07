@@ -14,7 +14,7 @@ import {
 
 import { createEmptyVNode } from 'core/vdom/vnode'
 import { currentRenderingInstance } from 'core/instance/render'
-
+// 确保构造函数
 function ensureCtor (comp: any, base) {
   if (
     comp.__esModule ||
@@ -26,7 +26,7 @@ function ensureCtor (comp: any, base) {
     ? base.extend(comp)
     : comp
 }
-
+// 创建异步占位节点
 export function createAsyncPlaceholder (
   factory: Function,
   data: ?VNodeData,
@@ -39,9 +39,9 @@ export function createAsyncPlaceholder (
   node.asyncMeta = { data, context, children, tag }
   return node
 }
-
+// 解决异步组件
 export function resolveAsyncComponent (
-  factory: Function,
+  factory: Function,//异步组件的工厂构造函数
   baseCtor: Class<Component>
 ): Class<Component> | void {
   if (isTrue(factory.error) && isDef(factory.errorComp)) {
@@ -51,7 +51,7 @@ export function resolveAsyncComponent (
   if (isDef(factory.resolved)) {
     return factory.resolved
   }
-
+// 当前渲染中的实例
   const owner = currentRenderingInstance
   if (owner && isDef(factory.owners) && factory.owners.indexOf(owner) === -1) {
     // already pending

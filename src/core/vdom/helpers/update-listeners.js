@@ -10,7 +10,7 @@ import {
   isTrue,
   isPlainObject
 } from 'shared/util'
-
+// 规范化事件
 const normalizeEvent = cached((name: string): {
   name: string,
   once: boolean,
@@ -32,7 +32,7 @@ const normalizeEvent = cached((name: string): {
     passive
   }
 })
-
+// 创建函数调用程序  fns： 函数或者函数数组， vm ： 组件实例， 返回一个函数
 export function createFnInvoker (fns: Function | Array<Function>, vm: ?Component): Function {
   function invoker () {
     const fns = invoker.fns
@@ -49,7 +49,7 @@ export function createFnInvoker (fns: Function | Array<Function>, vm: ?Component
   invoker.fns = fns
   return invoker
 }
-
+// 更新监听器
 export function updateListeners (
   on: Object,
   oldOn: Object,

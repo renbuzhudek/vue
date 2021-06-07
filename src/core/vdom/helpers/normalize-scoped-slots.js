@@ -3,15 +3,15 @@
 import { def } from 'core/util/lang'
 import { normalizeChildren } from 'core/vdom/helpers/normalize-children'
 import { emptyObject } from 'shared/util'
-
+// 规范化作用域插槽对象
 export function normalizeScopedSlots (
-  slots: { [key: string]: Function } | void,
-  normalSlots: { [key: string]: Array<VNode> },
-  prevSlots?: { [key: string]: Function } | void
+  slots: { [key: string]: Function } | void,//作用域插槽
+  normalSlots: { [key: string]: Array<VNode> },//普通插槽
+  prevSlots?: { [key: string]: Function } | void//作用域插槽
 ): any {
   let res
   const hasNormalSlots = Object.keys(normalSlots).length > 0
-  const isStable = slots ? !!slots.$stable : !hasNormalSlots
+  const isStable = slots ? !!slots.$stable : !hasNormalSlots//是否是稳定插槽
   const key = slots && slots.$key
   if (!slots) {
     res = {}
@@ -32,12 +32,12 @@ export function normalizeScopedSlots (
   } else {
     res = {}
     for (const key in slots) {
-      if (slots[key] && key[0] !== '$') {
+      if (slots[key] && key[0] !== '$') {//遍历作用域插槽 并规范化
         res[key] = normalizeScopedSlot(normalSlots, key, slots[key])
       }
     }
   }
-  // expose normal slots on scopedSlots
+  // expose normal slots on scopedSlots  遍历普通插槽，返回代理插槽函数
   for (const key in normalSlots) {
     if (!(key in res)) {
       res[key] = proxyNormalSlot(normalSlots, key)
@@ -48,12 +48,12 @@ export function normalizeScopedSlots (
   if (slots && Object.isExtensible(slots)) {
     (slots: any)._normalized = res
   }
-  def(res, '$stable', isStable)
-  def(res, '$key', key)
-  def(res, '$hasNormal', hasNormalSlots)
+  def(res, '$stable', isStable)//标记是否稳定
+  def(res, '$key', key)//标记key
+  def(res, '$hasNormal', hasNormalSlots)//标记是否有普通插槽
   return res
 }
-
+// 规范化单个插槽
 function normalizeScopedSlot(normalSlots, key, fn) {
   const normalized = function () {
     let res = arguments.length ? fn.apply(null, arguments) : fn({})
@@ -78,7 +78,7 @@ function normalizeScopedSlot(normalSlots, key, fn) {
   }
   return normalized
 }
-
+// 代理普通插槽，转换为一个函数
 function proxyNormalSlot(slots, key) {
   return () => slots[key]
 }

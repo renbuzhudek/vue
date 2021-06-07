@@ -27,9 +27,9 @@ import {
   isRegExp,
   isPrimitive
 } from '../util/index'
-
+// 导出创建的一个空节点
 export const emptyNode = new VNode('', {}, [])
-
+// 钩子数组
 const hooks = ['create', 'activate', 'update', 'remove', 'destroy']
 // 判断2个vnode是否值得比较
 //依次比较属性 key tag isComment是否相同，vnode.data(就是写render函数的第二个参数，是创建vnode的数据对象)属性是否都定义,并且是否相同的input类型
@@ -72,9 +72,9 @@ function createKeyToOldIdx (children, beginIdx, endIdx) {
 export function createPatchFunction (backend) {
   let i, j
   const cbs = {}
-
+// modules：平台相关的模块方法 directives,ref,attrs class dom-prpos events style transition， nodeOps ： 平台相关的节点操作方法
   const { modules, nodeOps } = backend
-
+// => cbs= {create:[fn,fn,...],update:[fn,fn,...]}
   for (i = 0; i < hooks.length; ++i) {
     cbs[hooks[i]] = []
     for (j = 0; j < modules.length; ++j) {
@@ -83,11 +83,11 @@ export function createPatchFunction (backend) {
       }
     }
   }
-
+// 空节点
   function emptyNodeAt (elm) {
     return new VNode(nodeOps.tagName(elm).toLowerCase(), {}, [], undefined, elm)
   }
-
+// 创建一个删除回调
   function createRmCb (childElm, listeners) {
     function remove () {
       if (--remove.listeners === 0) {
@@ -97,7 +97,7 @@ export function createPatchFunction (backend) {
     remove.listeners = listeners
     return remove
   }
-
+// 从父节点移除节点
   function removeNode (el) {
     const parent = nodeOps.parentNode(el)
     // element may have already been removed due to v-html / v-text
@@ -105,7 +105,7 @@ export function createPatchFunction (backend) {
       nodeOps.removeChild(parent, el)
     }
   }
-
+// 是否未知元素
   function isUnknownElement (vnode, inVPre) {
     return (
       !inVPre &&
@@ -123,7 +123,7 @@ export function createPatchFunction (backend) {
   }
 
   let creatingElmInVPre = 0
-
+// 创建元素 并插入父元素
   function createElm (
     vnode,
     insertedVnodeQueue,
@@ -240,7 +240,7 @@ export function createPatchFunction (backend) {
       }
     }
   }
-
+// 初始化组件
   function initComponent (vnode, insertedVnodeQueue) {
     if (isDef(vnode.data.pendingInsert)) {
       insertedVnodeQueue.push.apply(insertedVnodeQueue, vnode.data.pendingInsert)
@@ -307,14 +307,14 @@ export function createPatchFunction (backend) {
       nodeOps.appendChild(vnode.elm, nodeOps.createTextNode(String(vnode.text)))
     }
   }
-// 是否需要patch
+// 是否可patch
   function isPatchable (vnode) {
     while (vnode.componentInstance) {
       vnode = vnode.componentInstance._vnode
     }
     return isDef(vnode.tag)
   }
-
+// 调用所有的create钩子回调
   function invokeCreateHooks (vnode, insertedVnodeQueue) {
     for (let i = 0; i < cbs.create.length; ++i) {
       cbs.create[i](emptyNode, vnode)
@@ -329,6 +329,7 @@ export function createPatchFunction (backend) {
   // set scope id attribute for scoped CSS.
   // this is implemented as a special case to avoid the overhead
   // of going through the normal attribute patching process.
+  //  为作用域css设置id
   function setScope (vnode) {
     let i
     if (isDef(i = vnode.fnScopeId)) {
@@ -371,7 +372,7 @@ export function createPatchFunction (backend) {
       }
     }
   }
-
+// 移除vnode
   function removeVnodes (vnodes, startIdx, endIdx) {
     for (; startIdx <= endIdx; ++startIdx) {
       const ch = vnodes[startIdx]
@@ -385,7 +386,7 @@ export function createPatchFunction (backend) {
       }
     }
   }
-
+// 移除并且调用 remove钩子
   function removeAndInvokeRemoveHook (vnode, rm) {
     if (isDef(rm) || isDef(vnode.data)) {
       let i

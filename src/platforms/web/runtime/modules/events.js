@@ -101,7 +101,7 @@ function remove (
     capture
   )
 }
-
+// 更新或者创建dom事件监听
 function updateDOMListeners (oldVnode: VNodeWithData, vnode: VNodeWithData) {
   if (isUndef(oldVnode.data.on) && isUndef(vnode.data.on)) {
     return

@@ -31,13 +31,13 @@ function _update (oldVnode, vnode) {
   for (key in newDirs) {
     oldDir = oldDirs[key]
     dir = newDirs[key]
-    if (!oldDir) {
+    if (!oldDir) {//旧的vnode上不存在当前指令，调用bind钩子
       // new directive, bind
       callHook(dir, 'bind', vnode, oldVnode)
       if (dir.def && dir.def.inserted) {
         dirsWithInsert.push(dir)
       }
-    } else {
+    } else {//否则调用更新钩子
       // existing directive, update
       dir.oldValue = oldDir.value
       dir.oldArg = oldDir.arg
@@ -53,7 +53,7 @@ function _update (oldVnode, vnode) {
       for (let i = 0; i < dirsWithInsert.length; i++) {
         callHook(dirsWithInsert[i], 'inserted', vnode, oldVnode)
       }
-    }
+    }//调用insert钩子
     if (isCreate) {
       mergeVNodeHook(vnode, 'insert', callInsert)
     } else {
@@ -103,11 +103,11 @@ function normalizeDirectives (
   // $flow-disable-line
   return res
 }
-
+// 创建一个简单的指令名
 function getRawDirName (dir: VNodeDirective): string {
   return dir.rawName || `${dir.name}.${Object.keys(dir.modifiers || {}).join('.')}`
 }
-
+// 调用钩子
 function callHook (dir, hook, vnode, oldVnode, isDestroy) {
   const fn = dir.def && dir.def[hook]
   if (fn) {
